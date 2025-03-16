@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CSharpStartupTime (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "CSharpStartupTime (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
