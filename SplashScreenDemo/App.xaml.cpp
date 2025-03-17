@@ -38,6 +38,13 @@ namespace winrt::SplashScreenDemo::implementation
     /// <param name="e">Details about the launch request and process.</param>
     void App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
     {
+        auto cmd = GetCommandLine();
+        int argc{};
+        auto argv = CommandLineToArgvW(cmd, &argc);
+        if (argc > 1)
+        {
+            StartupTimer::GetInstance().ParseStartTime(argv[1]);
+        }
         window = make<MainWindow>();
         window.Activate();
     }

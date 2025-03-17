@@ -14,13 +14,29 @@ namespace CSharpStartupTime
         public static extern int MessageBox(IntPtr hWnd, string lpText, string lpCaption, uint uType);
 
         private DateTime m_constructed = DateTime.Now;
+
+        private string m_arg;
         private StartupTimer()
         {
         }
 
+        public void Parse(string arg)
+        {
+            m_arg = arg;
+        }
+
         public void Print()
         {
-            var str = $"{(DateTime.Now - m_constructed).TotalMilliseconds} ms";
+            string str;
+            if (m_arg != null)
+            {
+                var launched = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(m_arg)).UtcDateTime;
+                str = $"{(DateTime.UtcNow - launched).TotalMilliseconds} ms";
+            }
+            else
+            {
+                str = $"{(DateTime.Now - m_constructed).TotalMilliseconds} ms";
+            }
             Debug.WriteLine(str);
 
             MessageBox(IntPtr.Zero, str, "Startup time: ", 0);

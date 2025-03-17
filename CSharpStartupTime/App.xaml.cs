@@ -41,6 +41,9 @@ namespace CSharpStartupTime
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            var cmd = Environment.GetCommandLineArgs();
+            if (cmd.Length > 1)
+                StartupTimer.Instance.Parse(cmd[1]);
             m_window = new MainWindow();
             m_window.Activate();
         }

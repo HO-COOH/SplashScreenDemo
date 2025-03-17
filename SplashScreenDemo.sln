@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpStartupTime", "CSharp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SplashScreenComponent", "SplashScreenComponent\SplashScreenComponent.vcxproj", "{4FF5A0AD-02FD-42C3-AE1A-792619749540}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppStarter", "AppStarter\AppStarter.vcxproj", "{EDC67C26-341E-4129-BBDF-7AF9180851F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -80,6 +82,18 @@ Global
 		{4FF5A0AD-02FD-42C3-AE1A-792619749540}.Release|x64.Build.0 = Release|x64
 		{4FF5A0AD-02FD-42C3-AE1A-792619749540}.Release|x86.ActiveCfg = Release|Win32
 		{4FF5A0AD-02FD-42C3-AE1A-792619749540}.Release|x86.Build.0 = Release|Win32
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Debug|ARM64.ActiveCfg = Debug|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Debug|ARM64.Build.0 = Debug|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Debug|x64.ActiveCfg = Debug|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Debug|x64.Build.0 = Debug|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Debug|x86.ActiveCfg = Debug|Win32
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Debug|x86.Build.0 = Debug|Win32
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Release|ARM64.ActiveCfg = Release|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Release|ARM64.Build.0 = Release|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Release|x64.ActiveCfg = Release|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Release|x64.Build.0 = Release|x64
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Release|x86.ActiveCfg = Release|Win32
+		{EDC67C26-341E-4129-BBDF-7AF9180851F1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
