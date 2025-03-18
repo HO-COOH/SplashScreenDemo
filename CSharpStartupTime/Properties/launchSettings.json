@@ -2,7 +2,7 @@
   "profiles": {
     "CSharpStartupTime (Package)": {
       "commandName": "MsixPackage",
-      "doNotLaunchApp": true
+      "doNotLaunchApp": false
     },
     "CSharpStartupTime (Unpackaged)": {
       "commandName": "Project"

@@ -14,31 +14,47 @@ namespace CSharpStartupTime
         public static extern int MessageBox(IntPtr hWnd, string lpText, string lpCaption, uint uType);
 
         private DateTime m_constructed = DateTime.Now;
-
+        private DateTime m_inAppLaunch;
+        private DateTime m_beforeMainWindowConstructed;
+        private DateTime m_windowShown;
         private string m_arg;
+
         private StartupTimer()
         {
         }
 
-        public void Parse(string arg)
+        public void SetStartTime(string arg)
         {
             m_arg = arg;
         }
 
+        public void SetAppLaunch()
+        {
+            m_inAppLaunch = DateTime.Now;
+        }
+
+        public void SetBeforeMainWindowConstructed()
+        {
+            m_beforeMainWindowConstructed = DateTime.Now;
+        }
+
+        public void SetWindowShown()
+        {
+            m_windowShown = DateTime.Now;
+        }
+
         public void Print()
         {
-            string str;
             if (m_arg != null)
             {
-                var launched = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(m_arg)).UtcDateTime;
-                str = $"{(DateTime.UtcNow - launched).TotalMilliseconds} ms";
+                m_constructed = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(m_arg)).UtcDateTime.ToLocalTime();
             }
-            else
-            {
-                str = $"{(DateTime.Now - m_constructed).TotalMilliseconds} ms";
-            }
-            Debug.WriteLine(str);
 
+            var str = $@"App.OnLaunch: {(m_inAppLaunch - m_constructed).TotalMilliseconds} ms
+MainWindow constructor: {(m_beforeMainWindowConstructed - m_constructed).TotalMilliseconds} ms
+MainWindow shown: {(m_windowShown - m_constructed).TotalMilliseconds} ms";
+
+            Debug.WriteLine(str);
             MessageBox(IntPtr.Zero, str, "Startup time: ", 0);
         }
 

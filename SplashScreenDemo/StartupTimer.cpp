@@ -9,27 +9,44 @@ StartupTimer& StartupTimer::GetInstance()
     return s_instance;
 }
 
-void StartupTimer::ParseStartTime(std::wstring_view arg)
+void StartupTimer::SetStartTime(std::wstring_view arg)
 {
-    m_arg = arg;
+    m_startupTime = arg;
+}
+
+void StartupTimer::SetAppLaunch()
+{
+    m_inAppLaunch = std::chrono::system_clock::now();
+}
+
+void StartupTimer::SetBeforeMainWindowConstructed()
+{
+    m_beforeMainWindowConstructed = std::chrono::system_clock::now();
+}
+
+void StartupTimer::SetWindowShown()
+{
+    m_windowShown = std::chrono::system_clock::now();
 }
 
 void StartupTimer::Print()
 {
-    std::chrono::nanoseconds diff;
-    if (!m_arg.empty())
+    if (!m_startupTime.empty())
     {
-        auto now = std::chrono::system_clock::now();
-        std::wistringstream ss{ std::wstring{m_arg} };
+        std::wistringstream ss{ std::wstring{m_startupTime} };
         std::chrono::system_clock::rep count;
         ss >> count;
-        diff = now - std::chrono::system_clock::time_point{std::chrono::system_clock::duration{count} };
+        m_constructed = std::chrono::system_clock::time_point{std::chrono::system_clock::duration{count} };
     }
-    else
-    {
-        diff = std::chrono::system_clock::now() - m_constructed;
-    }
-    auto str = std::format(L"{} ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(diff).count());
+    auto str = std::format(
+        L"App.OnLaunch: {} ms\n"
+        L"MainWindow constructor: {} ms\n"
+        L"MainWindow shown: {} ms", 
+        std::chrono::duration_cast<std::chrono::milliseconds>(m_inAppLaunch - m_constructed).count(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(m_beforeMainWindowConstructed - m_constructed).count(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(m_windowShown - m_constructed).count()
+    );
+
     OutputDebugString(str.data());
     MessageBox(NULL, str.data(), L"Startup time: ", 0);
 }

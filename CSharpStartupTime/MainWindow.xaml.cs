@@ -25,13 +25,26 @@ namespace CSharpStartupTime
     {
         public MainWindow()
         {
-            StartupTimer.Instance.Print();
+            StartupTimer.Instance.SetBeforeMainWindowConstructed();
             this.InitializeComponent();
         }
 
         private void myButton_Click(object sender, RoutedEventArgs e)
         {
             myButton.Content = "Clicked";
+        }
+
+        static bool shown = false;
+        private void Window_Activated(object sender, WindowActivatedEventArgs args)
+        {
+            if(!shown)
+            {
+                shown = true;
+                StartupTimer.Instance.SetWindowShown();
+                StartupTimer.Instance.Print();
+                Environment.Exit(0);
+            }
+
         }
     }
 }

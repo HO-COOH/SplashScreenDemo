@@ -9,15 +9,27 @@ namespace winrt::SplashScreenDemo::implementation
     {
         MainWindow()
         {
-            StartupTimer::GetInstance().Print();
-            // Xaml objects should not call InitializeComponent during construction.
-            // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
+            StartupTimer::GetInstance().SetBeforeMainWindowConstructed();
         }
 
         int32_t MyProperty();
         void MyProperty(int32_t value);
 
         void myButton_Click(IInspectable const& sender, Microsoft::UI::Xaml::RoutedEventArgs const& args);
+
+        void Window_Activated(
+            winrt::Windows::Foundation::IInspectable const&, 
+            winrt::Microsoft::UI::Xaml::WindowActivatedEventArgs const&)
+        {
+            static bool shown = false;
+            if (!shown)
+            {
+                shown = true;
+                StartupTimer::GetInstance().SetWindowShown();
+                StartupTimer::GetInstance().Print();
+                ExitProcess(0);
+            }
+        }
     };
 }
 
