@@ -17,15 +17,9 @@ namespace CSharpStartupTime
         private DateTime m_inAppLaunch;
         private DateTime m_beforeMainWindowConstructed;
         private DateTime m_windowShown;
-        private string m_arg;
 
         private StartupTimer()
         {
-        }
-
-        public void SetStartTime(string arg)
-        {
-            m_arg = arg;
         }
 
         public void SetAppLaunch()
@@ -45,14 +39,17 @@ namespace CSharpStartupTime
 
         public void Print()
         {
-            if (m_arg != null)
-            {
-                m_constructed = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(m_arg)).UtcDateTime.ToLocalTime();
-            }
+            var cmd = Environment.GetCommandLineArgs();
+            if (cmd.Length <= 1)
+                return;
 
-            var str = $@"App.OnLaunch: {(m_inAppLaunch - m_constructed).TotalMilliseconds} ms
-MainWindow constructor: {(m_beforeMainWindowConstructed - m_constructed).TotalMilliseconds} ms
-MainWindow shown: {(m_windowShown - m_constructed).TotalMilliseconds} ms";
+            var commandLaunched = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(cmd[1])).UtcDateTime.ToLocalTime();
+            
+
+            var str = $@"main(): {(m_constructed - commandLaunched).TotalMilliseconds} ms
+App.OnLaunch: {(m_inAppLaunch - commandLaunched).TotalMilliseconds} ms
+MainWindow constructor: {(m_beforeMainWindowConstructed - commandLaunched).TotalMilliseconds} ms
+MainWindow shown: {(m_windowShown - commandLaunched).TotalMilliseconds} ms";
 
             Debug.WriteLine(str);
             MessageBox(IntPtr.Zero, str, "Startup time: ", 0);

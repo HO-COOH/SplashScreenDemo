@@ -42,9 +42,7 @@ namespace CSharpStartupTime
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             StartupTimer.Instance.SetAppLaunch();
-            var cmd = Environment.GetCommandLineArgs();
-            if (cmd.Length > 1)
-                StartupTimer.Instance.SetStartTime(cmd[1]);
+
             m_window = new MainWindow();
             m_window.Activate();
         }

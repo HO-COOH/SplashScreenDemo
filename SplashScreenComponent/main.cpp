@@ -1,5 +1,7 @@
 #include <Windows.h>
+#include "StartupTimer.h"
 
+static LPSTR argv{};
 //WIP
 class SplashWindow
 {
@@ -26,6 +28,27 @@ class SplashWindow
 
 	static LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
+		switch (msg)
+		{
+			case WM_ACTIVATE:
+			{
+				static bool firstTime = true;
+				if (firstTime)
+				{
+					firstTime = false;
+					StartupTimer::GetInstance().SetWindowShown();
+					StartupTimer::GetInstance().Print(argv);
+				}
+				break;
+			}
+			case WM_DESTROY:
+			{
+				PostQuitMessage(0);
+				return 0;
+			}
+			default:
+				break;
+		}
 		return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 
@@ -50,6 +73,7 @@ class SplashWindow
 public:
 	SplashWindow()
 	{
+		StartupTimer::GetInstance().SetBeforeMainWindowConstructed();
 		registerClassIfNeeded();
 
 		createWindow();
@@ -63,6 +87,9 @@ int WinMain(
 	int       nShowCmd
 )
 {
+	StartupTimer::GetInstance();
+	argv = lpCmdLine;
+
 	SplashWindow window;
 
 	MSG msg;

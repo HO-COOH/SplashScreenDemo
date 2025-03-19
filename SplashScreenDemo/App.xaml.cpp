@@ -39,13 +39,6 @@ namespace winrt::SplashScreenDemo::implementation
     void App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
     {
         StartupTimer::GetInstance().SetAppLaunch();
-        auto cmd = GetCommandLine();
-        int argc{};
-        auto argv = CommandLineToArgvW(cmd, &argc);
-        if (argc > 1)
-        {
-            StartupTimer::GetInstance().SetStartTime(argv[1]);
-        }
         window = make<MainWindow>();
         window.Activate();
     }
@@ -53,8 +46,9 @@ namespace winrt::SplashScreenDemo::implementation
 
 int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 {
-    winrt::init_apartment(winrt::apartment_type::single_threaded);
     StartupTimer::GetInstance();
+
+    winrt::init_apartment(winrt::apartment_type::single_threaded);
     ::winrt::Microsoft::UI::Xaml::Application::Start(
         [](auto&&)
         {
