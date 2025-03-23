@@ -29,7 +29,7 @@ void StartupTimer::Print()
     auto cmd = GetCommandLine();
     int argc{};
     auto argv = CommandLineToArgvW(cmd, &argc);
-    if (argc <= 1)
+    if (argc <= 1 || std::wstring_view{argv[1]}.starts_with(L"SplashScreenDemo_"))
     {
         return;
     }

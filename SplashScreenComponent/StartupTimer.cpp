@@ -21,6 +21,10 @@ void StartupTimer::SetWindowShown()
 
 void StartupTimer::Print(char const* argv)
 {
+	if (__argc <= 1)
+	{
+		return;
+	}
     std::istringstream ss{ std::string{argv} };
     std::chrono::system_clock::rep count;
     ss >> count;

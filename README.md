@@ -1,6 +1,9 @@
 # SplashScreenDemo (WIP)
 This is a demo project to show how to create a perfect splashscreen for a winui3 app (in my opinion).
 
+>[!Note]
+> To build this project, you need to have [vcpkg](https://vcpkg.io/) integration installed.
+
 A good splashscreen should be somewhat similar to UWP's implementation, that ideally achieve:
 - Fast to startup
 - Show some basic UI element (like the logo, a progress bar if possible)
@@ -9,6 +12,7 @@ A good splashscreen should be somewhat similar to UWP's implementation, that ide
 
 So in the next section, let's discuss them one-by-one.
 
+----
 ## Fast startup
 This is the single most important aspect of the splashscreen. We will discuss some of the alternatives here.
 ### In-App Splashscreen
@@ -65,6 +69,9 @@ C# Result:
 | 180 | 316 | 372 | 391
 
 
+### Standalone Splashscreen
+A standalone splashscreen could be way faster than 300 ms (C++) or 390 ms (C#).  
+
 C++ SplashScreen component result: (we don't have `App.Launch()` here)
 
 | t1 `main()` | t3 `Window.Window()` | t4 `Window.Activated()` |
@@ -75,5 +82,32 @@ C++ SplashScreen component result: (we don't have `App.Launch()` here)
 | 46 | 46 | 69
 | 52 | 52 | 77
 
-### Standalone Splashscreen
-A standalone splashscreen could be way faster than 300 ms (C++) or 390 ms (C#).  
+
+## Show some basic UI element (WIP)
+
+## Seamless transition to the main window
+We break down what "seamless" mean by examaing how UWP splashscreen compose of.
+```mermaid
+sequenceDiagram
+    User -> SplashScreen: Double click app icon (t0)
+    
+    par
+        SplashScreen -> SplashScreen: Show (t1)
+    and
+        SplashScreen ->> +Main: Launch() + message_queue_id (t2 + t3)
+    end
+   
+    Main ->> -SplashScreen: Window.Activated() + hwnd (t4)
+    SplashScreen -> SplashScreen: Fade transition and exit
+
+```
+
+### Sync window move with main window
+You can create a `boost::interprocess::message_queue` in your splashscreen component,
+naming it with a timestamp (so that you can run multiple instances and not interfering each other) `message_queue_id` 
+and passing it to the main app via command line.
+Then in the main app, you do your initialization logic. 
+When it's ready, you create your window, and pass the window handle `hwnd` to the splashscreen component with the `boost::interprocess::message_queue`. 
+Then you can sync your splashscreen window moving with your main window during the transition animation.
+
+### Transition animation (WIP)

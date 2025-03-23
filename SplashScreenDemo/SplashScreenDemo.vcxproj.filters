@@ -13,10 +13,13 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="StartupTimer.cpp" />
+    <ClCompile Include="SplashScreenComponentMessageQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="StartupTimer.h" />
+    <ClInclude Include="SplashScreenComponentMessageQueue.h" />
+    <ClInclude Include="HwndHelper.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

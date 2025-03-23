@@ -9,9 +9,11 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="D2D">
+      <UniqueIdentifier>{85cbe549-68ae-4a8d-b0f4-b951af9d9245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3D">
+      <UniqueIdentifier>{083e14b9-4332-4d16-83c3-14a39abfdc0f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -21,10 +23,41 @@
     <ClCompile Include="StartupTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MainApplicationLoadingMessageQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D2D1Factory.cpp">
+      <Filter>D2D</Filter>
+    </ClCompile>
+    <ClCompile Include="WICImagingFactory.cpp">
+      <Filter>D2D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StartupTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MainApplicationLoadingMessageQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D2D1Factory.h">
+      <Filter>D2D</Filter>
+    </ClInclude>
+    <ClInclude Include="WICImagingFactory.h">
+      <Filter>D2D</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11Device.hpp">
+      <Filter>D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGIFactory.hpp">
+      <Filter>D3D</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

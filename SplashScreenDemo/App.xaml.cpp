@@ -2,6 +2,7 @@
 #include "App.xaml.h"
 #include "MainWindow.xaml.h"
 #include "StartupTimer.h"
+#include "HwndHelper.hpp"
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -40,6 +41,30 @@ namespace winrt::SplashScreenDemo::implementation
     {
         StartupTimer::GetInstance().SetAppLaunch();
         window = make<MainWindow>();
+
+        auto cmd = GetCommandLine();
+        int argc{};
+        auto argv = CommandLineToArgvW(cmd, &argc);
+        if (argc > 1 && std::wstring_view{ argv[1] }.starts_with(L"SplashScreenDemo_"))
+        {
+            SplashScreenComponentMessageQueue queue{ argv[1] };
+            auto hwnd = queue.splashScreenHwnd();
+            //Get hwnd size
+			RECT rect;
+			GetWindowRect(hwnd, &rect);
+            //set window position
+
+            auto mainHwnd = GetHwnd(window);
+			SetWindowPos(
+                mainHwnd, 
+                nullptr, 
+                rect.left, 
+                rect.top, 
+                rect.right - rect.left, 
+                rect.bottom - rect.top, 
+                SWP_NOZORDER | SWP_NOACTIVATE);
+            queue.SendHwnd(mainHwnd);
+        }
         window.Activate();
     }
 }

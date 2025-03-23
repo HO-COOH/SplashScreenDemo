@@ -2,6 +2,7 @@
 
 #include "MainWindow.g.h"
 #include "StartupTimer.h"
+#include "SplashScreenComponentMessageQueue.h"
 
 namespace winrt::SplashScreenDemo::implementation
 {
@@ -27,7 +28,7 @@ namespace winrt::SplashScreenDemo::implementation
                 shown = true;
                 StartupTimer::GetInstance().SetWindowShown();
                 StartupTimer::GetInstance().Print();
-                ExitProcess(0);
+                //ExitProcess(0);
             }
         }
     };
