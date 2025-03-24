@@ -4,11 +4,17 @@
 #include "MainApplicationLoadingMessageQueue.h"
 #include "D2D1Factory.h"
 #include <d2d1.h>
+#include <d2d1_2.h>
 #include <wil/com.h>
 #include <wincodec.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 #include "WICImagingFactory.h"
+#include "DXGIFactory.hpp"
+#include "D3D11Device.hpp"
+#include "dxgi.h"
+#include <dcomp.h>
+#pragma comment(lib, "dcomp.lib")
 
 static LPSTR argv{};
 static HWND syncMoveWithWindow{};
@@ -20,8 +26,18 @@ static std::optional<WICImagingFactory> wicImagingFactory;
 class SplashWindow
 {
 	HWND m_hwnd;
-	wil::com_ptr<ID2D1HwndRenderTarget> m_renderTarget;
+	//wil::com_ptr<ID2D1HwndRenderTarget> m_renderTarget;
+	wil::com_ptr<ID2D1DeviceContext> m_context;
 	wil::com_ptr<ID2D1Bitmap> bitmap;
+	wil::com_ptr<IDXGISwapChain1> swapChain;
+	wil::com_ptr<IDXGIDevice> dxgiDevice;
+	wil::com_ptr<ID2D1Device> d2dDevice;
+	wil::com_ptr<ID2D1Bitmap1> surfaceBitmap;
+	wil::com_ptr<IDCompositionDevice> compositionDevice;
+	wil::com_ptr<IDCompositionTarget> compositionTarget;
+	wil::com_ptr<IDCompositionVisual> visual;
+	D3D11Device d3d11Device;
+	DXGIFactory dxgiFactory;
 
 	constexpr static auto className = L"SplashWindowClass";
 	static void registerClassIfNeeded()
@@ -130,10 +146,18 @@ class SplashWindow
 			case WM_PAINT:
 			{
 				auto self = getSelf(hwnd);
-				self->m_renderTarget->BeginDraw();
-				self->m_renderTarget->Clear(D2D1::ColorF(0x212121, 0.5f));
-				self->m_renderTarget->DrawBitmap(self->bitmap.get());
-				THROW_IF_FAILED(self->m_renderTarget->EndDraw());
+				//self->m_renderTarget->BeginDraw();
+				//self->m_renderTarget->Clear(D2D1::ColorF(0x212121, 0.5f));
+				//self->m_renderTarget->DrawBitmap(self->bitmap.get());
+				//THROW_IF_FAILED(self->m_renderTarget->EndDraw());
+
+				self->m_context->BeginDraw();
+				self->m_context->Clear(D2D1::ColorF(0x212121, 0.5f));
+				self->m_context->DrawBitmap(self->bitmap.get());
+				THROW_IF_FAILED(self->m_context->EndDraw());
+				THROW_IF_FAILED(self->swapChain->Present(1, 0));
+				THROW_IF_FAILED(self->compositionDevice->Commit());
+
 				ValidateRect(hwnd, nullptr);
 				return 0;
 			}
@@ -163,7 +187,7 @@ class SplashWindow
 	{
 		auto const [width, height] = getInitialWindowSize();
 		m_hwnd = CreateWindowEx(
-			WS_EX_COMPOSITED,
+			WS_EX_NOREDIRECTIONBITMAP,
 			className,
 			L"SplashWindow",
 			WS_OVERLAPPEDWINDOW,
@@ -177,19 +201,47 @@ class SplashWindow
 			this
 		);
 
-		MARGINS m{ -1 };
-		DwmExtendFrameIntoClientArea(m_hwnd, &m);
-
 		ShowWindow(m_hwnd, SW_SHOW);
 		messageQueue.emplace(m_hwnd);
-		THROW_IF_FAILED(d2d1Factory->CreateHwndRenderTarget(
-			D2D1::RenderTargetProperties(
-				D2D1_RENDER_TARGET_TYPE::D2D1_RENDER_TARGET_TYPE_DEFAULT, 
-				D2D1::PixelFormat(DXGI_FORMAT::DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE::D2D1_ALPHA_MODE_PREMULTIPLIED)),
-			D2D1::HwndRenderTargetProperties(m_hwnd, D2D1::SizeU(width, height)),
-			m_renderTarget.put()
-		));
+		//THROW_IF_FAILED(d2d1Factory->CreateHwndRenderTarget(
+		//	D2D1::RenderTargetProperties(
+		//		D2D1_RENDER_TARGET_TYPE::D2D1_RENDER_TARGET_TYPE_DEFAULT, 
+		//		D2D1::PixelFormat(DXGI_FORMAT::DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE::D2D1_ALPHA_MODE_PREMULTIPLIED)),
+		//	D2D1::HwndRenderTargetProperties(m_hwnd, D2D1::SizeU(width, height)),
+		//	m_renderTarget.put()
+		//));
 
+		//Create d2d
+		{
+
+			THROW_IF_FAILED(d3d11Device->QueryInterface(dxgiDevice.put()));
+			THROW_IF_FAILED(DCompositionCreateDevice(dxgiDevice.get(), IID_PPV_ARGS(compositionDevice.put())));
+			THROW_IF_FAILED(compositionDevice->CreateTargetForHwnd(m_hwnd, true, compositionTarget.put()));
+			THROW_IF_FAILED(compositionDevice->CreateVisual(visual.put()));
+
+			THROW_IF_FAILED(d2d1Factory->CreateDevice(dxgiDevice.get(), d2dDevice.put()));
+			THROW_IF_FAILED(d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS::D2D1_DEVICE_CONTEXT_OPTIONS_NONE, m_context.put()));
+			swapChain = dxgiFactory.CreateSwapChainForComposition(width, height, dxgiDevice.get());
+
+			THROW_IF_FAILED(visual->SetContent(swapChain.get()));
+			THROW_IF_FAILED(compositionTarget->SetRoot(visual.get()));
+
+			//get swap chain back buffer
+			wil::com_ptr<IDXGISurface2> surface;
+			swapChain->GetBuffer(0, IID_PPV_ARGS(surface.put()));
+			D2D1_BITMAP_PROPERTIES1 bitmapProperty{};
+			bitmapProperty.pixelFormat.alphaMode = D2D1_ALPHA_MODE::D2D1_ALPHA_MODE_PREMULTIPLIED;
+			bitmapProperty.pixelFormat.format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
+			bitmapProperty.bitmapOptions = D2D1_BITMAP_OPTIONS::D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS::D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
+
+			THROW_IF_FAILED(m_context->CreateBitmapFromDxgiSurface(surface.get(), &bitmapProperty, surfaceBitmap.put()));
+			m_context->SetTarget(surfaceBitmap.get());
+			//m_context->BeginDraw();
+			//m_context->Clear(D2D1::ColorF(0x212121, 0.5f));
+
+		}
+
+		//draw the logo image
 		{
 			wil::com_ptr<IWICBitmapDecoder> decoder;
 			wil::com_ptr<IWICBitmapFrameDecode> frame;
@@ -211,7 +263,7 @@ class SplashWindow
 				0.f,
 				WICBitmapPaletteType::WICBitmapPaletteTypeCustom));
 
-			THROW_IF_FAILED(m_renderTarget->CreateBitmapFromWicBitmap(
+			THROW_IF_FAILED(m_context->CreateBitmapFromWicBitmap(
 				converter.get(),
 				bitmap.put()
 			));

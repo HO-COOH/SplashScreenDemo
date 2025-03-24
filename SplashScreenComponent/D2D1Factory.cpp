@@ -1,6 +1,6 @@
 #include "D2D1Factory.h"
 #include <wil/result.h>
-#include <d2d1.h>
+#include <d2d1_2.h>
 
 #pragma comment(lib, "d2d1.lib")
 

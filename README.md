@@ -1,4 +1,4 @@
-# SplashScreenDemo (WIP)
+﻿# SplashScreenDemo (WIP)
 This is a demo project to show how to create a perfect splashscreen for a winui3 app (in my opinion).
 
 >[!Note]
@@ -83,7 +83,21 @@ C++ SplashScreen component result: (we don't have `App.Launch()` here)
 | 52 | 52 | 77
 
 
-## Show some basic UI element (WIP)
+## Show some basic UI element
+### Drawing the logo
+We use [Windows Imaging Component](https://learn.microsoft.com/en-us/windows/win32/wic/-wic-lh) to decode our `png` logo file.
+```mermaid
+flowchart TD
+    factory[Create IWICImagingFactory] --CreateDecoderFromFilename(file)--> decoder[Create IWICBitmapDecoder]
+    decoder --GetFrame(0)--> frame[Create IWICBitmapFrameDecode]
+    factory --CreateFormatConverter--> converter[Create IWICFormatConverter]
+    frame --Initialize--> converter
+    converter --ID2D1RenderTarget.CreateBitmapFromWicBitmap--> bitmap[ID2D1Bitmap]
+```
+
+### Drawing the progress bar
+The winui3 `ProgressBar` style is not in the `generic.xaml`, but in [the github repo](https://github.com/microsoft/microsoft-ui-xaml/blob/3b4ee2bd3de498e27517e82cf840acd000970ffc/src/controls/dev/ProgressBar/ProgressBar.xaml).
+Let's break down what it is composed of: 
 
 ## Seamless transition to the main window
 We break down what "seamless" mean by examaing how UWP splashscreen compose of.

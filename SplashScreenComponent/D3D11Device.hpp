@@ -2,7 +2,7 @@
 #include <wil/com.h>
 #include <wil/result.h>
 #include <d3d11.h>
-
+#pragma comment(lib, "d3d11.lib")
 
 class D3D11Device : public wil::com_ptr<ID3D11Device>
 {
