@@ -97,7 +97,64 @@ flowchart TD
 
 ### Drawing the progress bar
 The winui3 `ProgressBar` style is not in the `generic.xaml`, but in [the github repo](https://github.com/microsoft/microsoft-ui-xaml/blob/3b4ee2bd3de498e27517e82cf840acd000970ffc/src/controls/dev/ProgressBar/ProgressBar.xaml).
-Let's break down what it is composed of: 
+Copy the `ControlTemplate` (`VisualState` removed).
+```xml
+<Setter Property="Template">
+    <Setter.Value>
+        <ControlTemplate TargetType="controls:ProgressBar">
+            <Grid x:Name="LayoutRoot">
+                <Border x:Name="ProgressBarRoot" 
+                    BorderBrush="{TemplateBinding BorderBrush}" 
+                    BorderThickness="{TemplateBinding BorderThickness}" 
+                    Padding="{TemplateBindingPadding}"
+                    CornerRadius="{TemplateBinding CornerRadius}">
+                    <Border Clip="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ClipRect}">
+                        <Grid Height="{TemplateBinding MinHeight}">
+                            <Rectangle x:Name="ProgressBarTrack" 
+                                Fill="{TemplateBinding Background}" 
+                                Height="{ThemeResource ProgressBarTrackHeight}" 
+                                Width="{TemplateBindingWidth}"
+                                VerticalAlignment="Center" 
+                                RadiusX="{Binding Source={StaticResource ProgressBarTrackCornerRadius}, Converter{StaticResourceTopLeftCornerRadiusDoubleValueConverter}}" 
+                                RadiusY="{Binding Source={StaticResource ProgressBarTrackCornerRadius}, Converter{StaticResourceBottomRightCornerRadiusDoubleValueConverter}}">
+                                <Rectangle.RenderTransform>
+                                    <CompositeTransform />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                            <Rectangle x:Name="DeterminateProgressBarIndicator" 
+                                Fill="{TemplateBinding Foreground}" 
+                                HorizontalAlignment="Left" 
+                                RadiusX="{Binding CornerRadius, RelativeSourc{RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusDoubleValueConverter}}" 
+                                RadiusY="{Binding CornerRadius, RelativeSourc{RelativeSource TemplatedParent}, Converter={StaticResource BottomRightCornerRadiusDoubleValueConverter}}" />
+                            <Rectangle x:Name="IndeterminateProgressBarIndicator" 
+                                Fill="{TemplateBinding Foreground}" 
+                                HorizontalAlignment="Left" 
+                                Opacity="0" 
+                                RadiusX="{BindingCornerRadius,RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusDoubleValueConverter}}" 
+                                RadiusY="{BindingCornerRadius,RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BottomRightCornerRadiusDoubleValueConverter}}">
+                                <Rectangle.RenderTransform>
+                                    <CompositeTransform />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                            <Rectangle x:Name="IndeterminateProgressBarIndicator2" 
+                                Fill="{TemplateBinding Foreground}" 
+                                HorizontalAlignment="Left" 
+                                Opacity="0" 
+                                RadiusX="{BindingCornerRadius,RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusDoubleValueConverter}}" 
+                                RadiusY="{BindingCornerRadius,RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BottomRightCornerRadiusDoubleValueConverter}}">
+                                <Rectangle.RenderTransform>
+                                    <CompositeTransform />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                        </Grid>
+                    </Border>
+                </Border>
+            </Grid>
+        </ControlTemplate>
+    </Setter.Value>
+</Setter>
+```
+
 
 ## Seamless transition to the main window
 We break down what "seamless" mean by examaing how UWP splashscreen compose of.

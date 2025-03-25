@@ -22,6 +22,17 @@ static std::optional<MainApplicationLoadingMessageQueue> messageQueue;
 static D2D1Factory d2d1Factory;
 static std::optional<WICImagingFactory> wicImagingFactory;
 
+namespace Config
+{
+	static inline auto ProgressBarFillColor = D2D1::ColorF(0x0000FF);
+	constexpr static auto ProgressBarWidth = 300.f;
+	constexpr static auto ProgressBarHeight = 5.f;
+	constexpr static auto ProgressBarRadius = 4.f;
+	constexpr static auto ProgressBarMarginBottom = 100.f;
+	constexpr static auto LogoWidth = 300;
+	constexpr static auto LogoHeight = 300;
+}
+
 //WIP
 class SplashWindow
 {
@@ -36,6 +47,11 @@ class SplashWindow
 	wil::com_ptr<IDCompositionDevice> compositionDevice;
 	wil::com_ptr<IDCompositionTarget> compositionTarget;
 	wil::com_ptr<IDCompositionVisual> visual;
+	wil::com_ptr<ID2D1RoundedRectangleGeometry> clipGeometry;
+
+	float m_translation{};
+	wil::com_ptr<ID2D1SolidColorBrush> progressBarFillBrush;
+
 	D3D11Device d3d11Device;
 	DXGIFactory dxgiFactory;
 
@@ -79,20 +95,30 @@ class SplashWindow
 			}
 			case WM_TIMER:
 			{
-				if (wparam == SplashWindow::MessageQueuePollingTimerId)
+				switch (wparam)
 				{
-					HWND mainAppHwnd;
-					size_t receivedSize{};
-					unsigned priority{};
-					if (messageQueue->try_receive(&mainAppHwnd, sizeof(mainAppHwnd), receivedSize, priority))
+					case SplashWindow::MessageQueuePollingTimerId:
 					{
-						KillTimer(hwnd, SplashWindow::MessageQueuePollingTimerId);
-						syncMoveWithWindow = mainAppHwnd;
-
-						
+						HWND mainAppHwnd;
+						size_t receivedSize{};
+						unsigned priority{};
+						if (messageQueue->try_receive(&mainAppHwnd, sizeof(mainAppHwnd), receivedSize, priority))
+						{
+							KillTimer(hwnd, SplashWindow::MessageQueuePollingTimerId);
+							syncMoveWithWindow = mainAppHwnd;
+						}
+						return 0;
 					}
+					case SplashWindow::AnimationTimerId:
+					{
+						auto self = getSelf(hwnd);
+						self->m_translation = self->m_translation >= Config::ProgressBarWidth ? 0.0f : self->m_translation + 1.0f;
+						InvalidateRect(hwnd, nullptr, true);
+						return 0;
+					}
+					default:
+						return 0;
 				}
-				return 0;
 			}
 			case WM_WINDOWPOSCHANGING:
 			{
@@ -151,13 +177,52 @@ class SplashWindow
 				//self->m_renderTarget->DrawBitmap(self->bitmap.get());
 				//THROW_IF_FAILED(self->m_renderTarget->EndDraw());
 
+				RECT rect;
+				GetWindowRect(hwnd, &rect);
+
+				D2D1_RECT_F bitmapDestination
+				{
+					.left = (rect.right - rect.left - Config::LogoWidth) / 2.f,
+					.top = (rect.bottom - rect.top - Config::LogoHeight) / 2.f
+				};
+				bitmapDestination.right = bitmapDestination.left + Config::LogoWidth;
+				bitmapDestination.bottom = bitmapDestination.top + Config::LogoHeight;
+
+
 				self->m_context->BeginDraw();
 				self->m_context->Clear(D2D1::ColorF(0x212121, 0.5f));
-				self->m_context->DrawBitmap(self->bitmap.get());
+				self->m_context->DrawBitmap(self->bitmap.get(), &bitmapDestination);
+
+
+
+				{
+					wil::com_ptr<ID2D1Layer> layer;
+					THROW_IF_FAILED(self->m_context->CreateLayer(layer.put()));
+
+					self->m_context->PushLayer(
+						D2D1::LayerParameters(D2D1::InfiniteRect(), self->clipGeometry.get()), 
+						layer.get()
+					);
+
+					self->m_context->SetTransform(D2D1::Matrix3x2F::Translation(self->m_translation, 0.f));
+					//draw progress bar
+					auto left = (rect.right - rect.left - Config::ProgressBarWidth) / 2.f;
+					auto top = rect.bottom - rect.top - Config::ProgressBarMarginBottom;
+					self->m_context->FillRoundedRectangle(
+						D2D1::RoundedRect(D2D1::RectF(left, top, left + Config::ProgressBarWidth / 2.0, top + Config::ProgressBarHeight),
+							Config::ProgressBarRadius,
+							Config::ProgressBarRadius
+						),
+						self->progressBarFillBrush.get()
+					);
+
+					self->m_context->PopLayer();
+				}
+
 				THROW_IF_FAILED(self->m_context->EndDraw());
 				THROW_IF_FAILED(self->swapChain->Present(1, 0));
 				THROW_IF_FAILED(self->compositionDevice->Commit());
-
+				self->m_context->SetTransform(D2D1::Matrix3x2F::Identity());
 				ValidateRect(hwnd, nullptr);
 				return 0;
 			}
@@ -201,7 +266,7 @@ class SplashWindow
 			this
 		);
 
-		ShowWindow(m_hwnd, SW_SHOW);
+
 		messageQueue.emplace(m_hwnd);
 		//THROW_IF_FAILED(d2d1Factory->CreateHwndRenderTarget(
 		//	D2D1::RenderTargetProperties(
@@ -221,6 +286,7 @@ class SplashWindow
 
 			THROW_IF_FAILED(d2d1Factory->CreateDevice(dxgiDevice.get(), d2dDevice.put()));
 			THROW_IF_FAILED(d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS::D2D1_DEVICE_CONTEXT_OPTIONS_NONE, m_context.put()));
+			THROW_IF_FAILED(m_context->CreateSolidColorBrush(Config::ProgressBarFillColor, progressBarFillBrush.put()));
 			swapChain = dxgiFactory.CreateSwapChainForComposition(width, height, dxgiDevice.get());
 
 			THROW_IF_FAILED(visual->SetContent(swapChain.get()));
@@ -239,9 +305,18 @@ class SplashWindow
 			//m_context->BeginDraw();
 			//m_context->Clear(D2D1::ColorF(0x212121, 0.5f));
 
+			auto left = (width - Config::ProgressBarWidth) / 2.f;
+			auto top = height - Config::ProgressBarMarginBottom;
+			THROW_IF_FAILED(d2d1Factory->CreateRoundedRectangleGeometry(
+				D2D1::RoundedRect(D2D1::RectF(left, top, left + Config::ProgressBarWidth, top + Config::ProgressBarHeight),
+					Config::ProgressBarRadius,
+					Config::ProgressBarRadius
+				),
+				clipGeometry.put()
+			));
 		}
 
-		//draw the logo image
+		//get the logo image, store in `bitmap`
 		{
 			wil::com_ptr<IWICBitmapDecoder> decoder;
 			wil::com_ptr<IWICBitmapFrameDecode> frame;
@@ -268,11 +343,15 @@ class SplashWindow
 				bitmap.put()
 			));
 		}
+		ShowWindow(m_hwnd, SW_SHOW);
 		SetTimer(m_hwnd, MessageQueuePollingTimerId, MessageQueuePollingTimerIntervalMilliseconds, nullptr);
+		SetTimer(m_hwnd, AnimationTimerId, AnimationTimerInterval, nullptr);
 	}
 public:
 	constexpr static auto MessageQueuePollingTimerId = 0x1;
+	constexpr static auto AnimationTimerId = 0x2;
 	constexpr static auto MessageQueuePollingTimerIntervalMilliseconds = 100;
+	constexpr static auto AnimationTimerInterval = 5;
 
 	SplashWindow()
 	{

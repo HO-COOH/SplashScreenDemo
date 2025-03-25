@@ -41,6 +41,7 @@ namespace winrt::SplashScreenDemo::implementation
     {
         StartupTimer::GetInstance().SetAppLaunch();
         window = make<MainWindow>();
+        auto mainHwnd = GetHwnd(window);
 
         auto cmd = GetCommandLine();
         int argc{};
@@ -53,8 +54,6 @@ namespace winrt::SplashScreenDemo::implementation
 			RECT rect;
 			GetWindowRect(hwnd, &rect);
             //set window position
-
-            auto mainHwnd = GetHwnd(window);
 			SetWindowPos(
                 mainHwnd, 
                 nullptr, 
@@ -65,7 +64,8 @@ namespace winrt::SplashScreenDemo::implementation
                 SWP_NOZORDER | SWP_NOACTIVATE);
             queue.SendHwnd(mainHwnd);
         }
-        window.Activate();
+        ShowWindow(mainHwnd, SW_SHOWNOACTIVATE);
+        //window.Activate();
     }
 }
 
