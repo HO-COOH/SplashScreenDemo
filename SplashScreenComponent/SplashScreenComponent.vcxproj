@@ -136,17 +136,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ComponentBase.cpp" />
     <ClCompile Include="D2D1Factory.cpp" />
+    <ClCompile Include="Logo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainApplicationLoadingMessageQueue.cpp" />
+    <ClCompile Include="ProgressBar.cpp" />
     <ClCompile Include="StartupTimer.cpp" />
     <ClCompile Include="WICImagingFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ComponentBase.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="D2D1Factory.h" />
     <ClInclude Include="D3D11Device.hpp" />
     <ClInclude Include="DXGIFactory.hpp" />
+    <ClInclude Include="Logo.h" />
     <ClInclude Include="MainApplicationLoadingMessageQueue.h" />
+    <ClInclude Include="ProgressBar.h" />
     <ClInclude Include="StartupTimer.h" />
     <ClInclude Include="WICImagingFactory.h" />
   </ItemGroup>
