@@ -3,6 +3,7 @@
 #include "Config.h"
 #include <wil/result.h>
 #include <wil/com.h>
+#include "SplineDoubleKeyFrame.h"
 
 ProgressBar::ProgressBar(ID2D1RenderTarget* renderTarget)
 {

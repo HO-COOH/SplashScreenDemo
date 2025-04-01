@@ -151,9 +151,11 @@
     <ClInclude Include="D2D1Factory.h" />
     <ClInclude Include="D3D11Device.hpp" />
     <ClInclude Include="DXGIFactory.hpp" />
+    <ClInclude Include="KeySpline.h" />
     <ClInclude Include="Logo.h" />
     <ClInclude Include="MainApplicationLoadingMessageQueue.h" />
     <ClInclude Include="ProgressBar.h" />
+    <ClInclude Include="SplineDoubleKeyFrame.h" />
     <ClInclude Include="StartupTimer.h" />
     <ClInclude Include="WICImagingFactory.h" />
   </ItemGroup>

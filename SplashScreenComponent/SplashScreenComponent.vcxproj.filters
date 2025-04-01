@@ -76,6 +76,12 @@
     <ClInclude Include="ComponentBase.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="KeySpline.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SplineDoubleKeyFrame.h">
+      <Filter>Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
