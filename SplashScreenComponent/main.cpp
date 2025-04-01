@@ -286,9 +286,12 @@ public:
 		createWindow();
 	}
 };
-
-
-
+#undef GetCurrentTime
+#include <winrt/base.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.UI.Xaml.Media.Animation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 int WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -299,6 +302,15 @@ int WinMain(
 	THROW_IF_FAILED(CoInitialize(nullptr));
 	StartupTimer::GetInstance();
 	argv = lpCmdLine;
+
+	std::thread{ []() {
+	winrt::init_apartment(winrt::apartment_type::single_threaded);
+	auto winxamlmanager = winrt::Windows::UI::Xaml::Hosting::WindowsXamlManager::InitializeForCurrentThread();
+	winrt::Windows::UI::Xaml::Media::Animation::Storyboard storyboard;
+	winrt::Windows::UI::Xaml::Media::Animation::DoubleAnimationUsingKeyFrames animation;
+
+	storyboard.Children().Append(animation);
+	} }.detach();
 
 	SplashWindow window;
 
