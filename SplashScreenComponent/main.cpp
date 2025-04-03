@@ -285,13 +285,17 @@ public:
 
 		createWindow();
 	}
+
+	auto Get() const { return m_hwnd; }
 };
 #undef GetCurrentTime
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.UI.Xaml.Media.Animation.h>
+
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
+#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/SplashScreenComponentRT.h>
 int WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -303,16 +307,19 @@ int WinMain(
 	StartupTimer::GetInstance();
 	argv = lpCmdLine;
 
-	std::thread{ []() {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
-	auto winxamlmanager = winrt::Windows::UI::Xaml::Hosting::WindowsXamlManager::InitializeForCurrentThread();
-	winrt::Windows::UI::Xaml::Media::Animation::Storyboard storyboard;
-	winrt::Windows::UI::Xaml::Media::Animation::DoubleAnimationUsingKeyFrames animation;
 
-	storyboard.Children().Append(animation);
-	} }.detach();
+	auto winxamlmanager = winrt::Windows::UI::Xaml::Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
 	SplashWindow window;
+
+
+	winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource desktopSource;
+	auto interop = desktopSource.as<IDesktopWindowXamlSourceNative>();
+	interop->AttachToWindow(window.Get());
+	winrt::SplashScreenComponentRT::DummyClass v;
+
+
 
 	MSG msg;
 	BOOL ret;
