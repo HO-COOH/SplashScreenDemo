@@ -9,6 +9,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpStartupTime", "CSharpStartupTime\CSharpStartupTime.csproj", "{1E994BE3-00EE-41BE-BCDD-359EC5EE0180}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SplashScreenComponent", "SplashScreenComponent\SplashScreenComponent.vcxproj", "{4FF5A0AD-02FD-42C3-AE1A-792619749540}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DD01C36D-A2FF-4DD1-84F6-1498FF04DB7C} = {DD01C36D-A2FF-4DD1-84F6-1498FF04DB7C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppStarter", "AppStarter\AppStarter.vcxproj", "{EDC67C26-341E-4129-BBDF-7AF9180851F1}"
 EndProject

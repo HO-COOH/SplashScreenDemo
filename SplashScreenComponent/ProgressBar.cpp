@@ -11,7 +11,7 @@ ProgressBar::ProgressBar(ID2D1RenderTarget* renderTarget)
 
 }
 
-void ProgressBar::OnPaint(ID2D1RenderTarget* renderTarget)
+void ProgressBar::OnPaint(ID2D1RenderTarget* renderTarget, FLOAT opacity)
 {
 	wil::com_ptr<ID2D1Layer> layer;
 	THROW_IF_FAILED(renderTarget->CreateLayer(layer.put()));
@@ -24,6 +24,7 @@ void ProgressBar::OnPaint(ID2D1RenderTarget* renderTarget)
 	//draw progress bar
 	auto left = (m_width - Config::ProgressBarWidth) / 2.f;
 	auto top = m_height - Config::ProgressBarMarginBottom;
+	if (opacity != 1.0f) progressBarFillBrush->SetOpacity(opacity);
 	renderTarget->FillRoundedRectangle(
 		D2D1::RoundedRect(D2D1::RectF(left, top, left + Config::ProgressBarWidth / 2.0, top + Config::ProgressBarHeight),
 			Config::ProgressBarRadius,

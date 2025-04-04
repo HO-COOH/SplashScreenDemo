@@ -51,21 +51,23 @@ namespace winrt::SplashScreenDemo::implementation
             SplashScreenComponentMessageQueue queue{ argv[1] };
             auto hwnd = queue.splashScreenHwnd();
             //Get hwnd size
-			RECT rect;
-			GetWindowRect(hwnd, &rect);
+            RECT rect;
+            GetWindowRect(hwnd, &rect);
             //set window position
-			SetWindowPos(
-                mainHwnd, 
-                nullptr, 
-                rect.left, 
-                rect.top, 
-                rect.right - rect.left, 
-                rect.bottom - rect.top, 
-                SWP_NOZORDER | SWP_NOACTIVATE);
+            SetWindowPos(
+                mainHwnd,
+                hwnd,
+                rect.left,
+                rect.top,
+                rect.right - rect.left,
+                rect.bottom - rect.top,
+                SWP_NOACTIVATE);
+            Sleep(1000);
+            ShowWindow(mainHwnd, SW_SHOWNOACTIVATE);
             queue.SendHwnd(mainHwnd);
         }
-        ShowWindow(mainHwnd, SW_SHOWNOACTIVATE);
-        //window.Activate();
+        else
+            window.Activate();
     }
 }
 

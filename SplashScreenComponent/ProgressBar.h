@@ -16,7 +16,7 @@ class ProgressBar : public ComponentBase
 	float m_translation{};
 public:
 	ProgressBar(ID2D1RenderTarget* renderTarget);
-	void OnPaint(ID2D1RenderTarget* renderTarget);
+	void OnPaint(ID2D1RenderTarget* renderTarget, FLOAT opacity = 1.0f);
 	void OnSize(UINT width, UINT height, ID2D1Factory* d2d1Factory);
 
 	void OnTick();

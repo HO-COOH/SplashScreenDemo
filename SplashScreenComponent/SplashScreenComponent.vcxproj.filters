@@ -44,6 +44,9 @@
     <ClCompile Include="ComponentBase.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="BackgroundTransparency.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StartupTimer.h">
@@ -81,6 +84,9 @@
     </ClInclude>
     <ClInclude Include="SplineDoubleKeyFrame.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="BackgroundTransparency.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

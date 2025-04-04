@@ -17,6 +17,9 @@
 #include <dcomp.h>
 #include "Logo.h"
 #include "ProgressBar.h"
+#include "BackgroundTransparency.h"
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "dcomp.lib")
 
 static LPSTR argv{};
@@ -43,7 +46,7 @@ class SplashWindow
 	wil::com_ptr<IDCompositionTarget> compositionTarget;
 	wil::com_ptr<IDCompositionVisual> visual;
 
-
+	BackgroundTransparency backgroundTransparency;
 
 	D3D11Device d3d11Device;
 	DXGIFactory dxgiFactory;
@@ -97,6 +100,7 @@ class SplashWindow
 						{
 							KillTimer(hwnd, SplashWindow::MessageQueuePollingTimerId);
 							syncMoveWithWindow = mainAppHwnd;
+							getSelf(hwnd)->backgroundTransparency.StartToFade();
 						}
 						return 0;
 					}
@@ -131,24 +135,6 @@ class SplashWindow
 				}
 				break;
 			}
-			//case WM_MOVE:
-			//{
-			//	if (syncMoveWithWindow)
-			//	{
-			//		auto xPos = (int)(short)LOWORD(lparam);   // horizontal position of client area
-			//		auto yPos = (int)(short)HIWORD(lparam);   // vertical position of client area
-			//		SetWindowPos(
-			//			syncMoveWithWindow,
-			//			nullptr,
-			//			xPos,
-			//			yPos,
-			//			0,
-			//			0,
-			//			SWP_NOSIZE | SWP_NOACTIVATE
-			//		);
-			//	}
-			//	break;
-			//}
 			case WM_ACTIVATE:
 			{
 				static bool firstTime = true;
@@ -175,9 +161,17 @@ class SplashWindow
 
 
 				self->m_context->BeginDraw();
-				self->m_context->Clear(D2D1::ColorF(0x212121, 0.0f));
-				self->m_logo->OnPaint(self->m_context.get());
-				self->m_progressBar->OnPaint(self->m_context.get());
+				float const backgroundTransparency = self->backgroundTransparency;
+				self->m_context->Clear(D2D1::ColorF(Config::BackgroundColor, backgroundTransparency));
+				if (backgroundTransparency <= 0)
+				{
+					//disable window animation
+					BOOL const value = TRUE;
+					THROW_IF_FAILED(DwmSetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE::DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value)));
+					PostQuitMessage(0);
+				}
+				self->m_logo->OnPaint(self->m_context.get(), backgroundTransparency);
+				self->m_progressBar->OnPaint(self->m_context.get(), backgroundTransparency);
 
 				THROW_IF_FAILED(self->m_context->EndDraw());
 				THROW_IF_FAILED(self->swapChain->Present(1, 0));
@@ -216,10 +210,10 @@ class SplashWindow
 		m_hwnd = CreateWindowEx(
 			WS_EX_NOREDIRECTIONBITMAP,
 			className,
-			L"SplashWindow",
+			L"SplashScreenDemo",
 			WS_OVERLAPPEDWINDOW,
-			0,
-			0,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
 			width,
 			height,
 			nullptr,
@@ -315,4 +309,5 @@ int WinMain(
 			DispatchMessage(&msg);
 		}
 	}
+	SetForegroundWindow(syncMoveWithWindow);
 }

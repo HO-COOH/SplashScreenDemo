@@ -13,5 +13,5 @@ class Logo : public ComponentBase
 	wil::com_ptr<ID2D1Bitmap> bitmap;
 public:
 	Logo(std::wstring_view filePath, ID2D1RenderTarget* renderTarget);
-	void OnPaint(ID2D1RenderTarget* renderTarget);
+	void OnPaint(ID2D1RenderTarget* renderTarget, FLOAT opacity = 1.0f);
 };

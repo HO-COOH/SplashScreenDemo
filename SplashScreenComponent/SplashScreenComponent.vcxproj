@@ -136,6 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BackgroundTransparency.cpp" />
     <ClCompile Include="ComponentBase.cpp" />
     <ClCompile Include="D2D1Factory.cpp" />
     <ClCompile Include="Logo.cpp" />
@@ -146,6 +147,7 @@
     <ClCompile Include="WICImagingFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BackgroundTransparency.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="D2D1Factory.h" />

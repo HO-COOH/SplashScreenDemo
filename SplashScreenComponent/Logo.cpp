@@ -39,7 +39,7 @@ Logo::Logo(std::wstring_view filePath, ID2D1RenderTarget* renderTarget)
 	));
 }
 
-void Logo::OnPaint(ID2D1RenderTarget* renderTarget)
+void Logo::OnPaint(ID2D1RenderTarget* renderTarget, FLOAT opacity)
 {
 	D2D1_RECT_F bitmapDestination
 	{
@@ -49,6 +49,6 @@ void Logo::OnPaint(ID2D1RenderTarget* renderTarget)
 	bitmapDestination.right = bitmapDestination.left + Config::LogoWidth;
 	bitmapDestination.bottom = bitmapDestination.top + Config::LogoHeight;
 
-	renderTarget->DrawBitmap(bitmap.get(), &bitmapDestination);
+	renderTarget->DrawBitmap(bitmap.get(), &bitmapDestination, opacity);
 }
 
