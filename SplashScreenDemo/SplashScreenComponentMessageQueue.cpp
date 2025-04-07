@@ -2,7 +2,6 @@
 #include "SplashScreenComponentMessageQueue.h"
 
 SplashScreenComponentMessageQueue::SplashScreenComponentMessageQueue(std::wstring_view name) :
-	boost::interprocess::message_queue{boost::interprocess::open_only, name.data()},
 	m_name{name}
 {
 	uint64_t hwnd{};
@@ -12,12 +11,7 @@ SplashScreenComponentMessageQueue::SplashScreenComponentMessageQueue(std::wstrin
 
 void SplashScreenComponentMessageQueue::SendHwnd(HWND hwnd)
 {
-	send(&hwnd, sizeof(hwnd), 0);
-}
-
-SplashScreenComponentMessageQueue::~SplashScreenComponentMessageQueue()
-{
-	remove(m_name.data());
+	SendMessage(m_splashScreenHwnd, WM_USER + 1, reinterpret_cast<WPARAM>(hwnd), 0);
 }
 
 HWND SplashScreenComponentMessageQueue::splashScreenHwnd() const

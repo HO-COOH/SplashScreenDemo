@@ -1,10 +1,12 @@
 #pragma once
-#include <boost/interprocess/ipc/message_queue.hpp>
 #include <Windows.h>
 #include <format>
 #include <chrono>
 
-class MainApplicationLoadingMessageQueue : public boost::interprocess::message_queue
+/**
+ * @brief Run main application and pass the splashscreen HWND to it as command line argument
+ */
+class MainApplicationLoadingMessageQueue
 {
 	static inline auto timeStamp = std::chrono::steady_clock::now().time_since_epoch().count();
 	template<typename Char>

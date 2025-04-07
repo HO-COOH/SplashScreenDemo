@@ -12,4 +12,5 @@ namespace Config
 	constexpr static auto LogoHeight = 300;
 	constexpr static auto LogoPath = LR"(C:\Users\Peter\Desktop\SplashScreenDemo\SplashScreenDemo (Package)\Images\Square150x150Logo.scale-200.png)";
 	constexpr static unsigned int BackgroundColor = 0xFFB900;
+	constexpr static auto ExtendsContentIntoTitleBar = false;
 }

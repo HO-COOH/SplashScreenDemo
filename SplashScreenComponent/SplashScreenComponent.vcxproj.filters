@@ -18,6 +18,15 @@
     <Filter Include="Components">
       <UniqueIdentifier>{a5c3f0bc-60f9-4dd9-aac5-d3ba43d2c4a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Composition">
+      <UniqueIdentifier>{930b1345-8ad9-4a53-bfb7-59abc58cc56d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Composition\Animation">
+      <UniqueIdentifier>{883d8a69-cd1b-4f11-bb90-f8ff2b9e3a8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Svg">
+      <UniqueIdentifier>{b6c91bed-6fd1-47cd-b6f4-65ddabf65fe5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -38,14 +47,26 @@
     <ClCompile Include="Logo.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="ProgressBar.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="ComponentBase.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="BackgroundTransparency.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ColorAnimationUsingKeyFrames.cpp">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="DoubleAnimationUsingKeyFrames.cpp">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgressBarComposition.cpp">
+      <Filter>Components\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="LogoCompositionSurface.cpp">
+      <Filter>Components\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="Background.cpp">
+      <Filter>Components\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="Svg.cpp">
+      <Filter>Components\Svg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,20 +94,35 @@
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProgressBar.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="ComponentBase.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="KeySpline.h">
-      <Filter>Components</Filter>
+    <ClInclude Include="ColorAnimationUsingKeyFrames.h">
+      <Filter>Components\Composition\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="SplineDoubleKeyFrame.h">
-      <Filter>Components</Filter>
+    <ClInclude Include="ColorKeyFrame.h">
+      <Filter>Components\Composition\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="BackgroundTransparency.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="DoubleAnimationUsingKeyFrames.h">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="ScalarKeyFrame.h">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgressBarComposition.h">
+      <Filter>Components\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="LogoCompositionSurface.h">
+      <Filter>Components\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.h">
+      <Filter>Components\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Glyphs.h">
+      <Filter>Components\Svg</Filter>
+    </ClInclude>
+    <ClInclude Include="Svg.h">
+      <Filter>Components\Svg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
