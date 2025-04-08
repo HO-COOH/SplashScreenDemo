@@ -11,12 +11,13 @@
 #include "Config.h"
 #include <dcomp.h>
 #include "Background.h"
-#include "ProgressBarComposition.h"
+#include "CompositionWrapper.h"
 #include <d2d1_2.h>
 #include "D2D1Factory.h"
 #include <dwmapi.h>
 #include "LogoCompositionSurface.h"
 #include "DoubleAnimationUsingKeyFrames.h"
+#include "ProgressBarComposition.h"
 #pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "dcomp.lib")
 
@@ -40,6 +41,7 @@ class SplashWindow
 	Background background{ nullptr };
 	DoubleAnimationUsingKeyFrames opacityAnimation{ nullptr };
 	winrt::Windows::UI::Composition::SpriteVisual logoSprite{ nullptr };
+	ProgressBarComposition progressBar{ nullptr };
 
 	constexpr static auto className = L"SplashWindowClass";
 	static void registerClassIfNeeded()
@@ -120,6 +122,7 @@ class SplashWindow
 				auto self = getSelf(hwnd);
 				self->background.StartToFade(self->opacityAnimation);
 				self->logoSprite.StartAnimation(L"Opacity", self->opacityAnimation);
+				
 				return 0;
 			}
 			case WM_DESTROY:
@@ -185,9 +188,13 @@ class SplashWindow
 		opacityAnimation = DoubleAnimationUsingKeyFrames{
 			m_compositionWrapper->m_compositor,
 			std::chrono::milliseconds{300},
-			{
-				ScalarKeyFrame{ .normalizedProgressKey = 1.0f }
-			}
+			ScalarKeyFrame{ .normalizedProgressKey = 1.0f }
+		};
+
+		progressBar = ProgressBarComposition{
+			m_compositionWrapper->m_compositor,
+			{Config::ProgressBarWidth, Config::ProgressBarHeight},
+			m_compositionWrapper->visuals
 		};
 
 		messageQueue.emplace(m_hwnd);

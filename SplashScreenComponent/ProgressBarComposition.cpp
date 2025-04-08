@@ -1,31 +1,42 @@
 #include "ProgressBarComposition.h"
-#include <DispatcherQueue.h>
-
 #include "Config.h"
+#include "Vector3KeyFrameAnimation.h"
 #include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.UI.Xaml.Media.h>
 
-
-CompositionWrapper::CompositionWrapper(HWND hwnd) : 
-	m_dispatcherQueueController{ [] {
-		DispatcherQueueOptions options
-		{
-			.dwSize = sizeof(DispatcherQueueOptions),
-			.threadType = DISPATCHERQUEUE_THREAD_TYPE::DQTYPE_THREAD_CURRENT,
-			.apartmentType = DISPATCHERQUEUE_THREAD_APARTMENTTYPE::DQTAT_COM_STA,
-		};
-		ABI::Windows::System::IDispatcherQueueController* controller;
-		CreateDispatcherQueueController(options, &controller);
-		return winrt::Windows::System::DispatcherQueueController{ controller, winrt::take_ownership_from_abi };
-	}()}
+ProgressBarComposition::ProgressBarComposition(
+	winrt::Windows::UI::Composition::Compositor const& compositor, 
+	winrt::Windows::Foundation::Numerics::float2 const& size, 
+	winrt::Windows::UI::Composition::VisualCollection const& visuals) : ShapeVisual{ compositor.CreateShapeVisual() }
 {
-	winrt::check_hresult(m_compositor.as<ABI::Windows::UI::Composition::Desktop::ICompositorDesktopInterop>()->CreateDesktopWindowTarget(
-		hwnd,
-		true,
-		reinterpret_cast<ABI::Windows::UI::Composition::Desktop::IDesktopWindowTarget**>(winrt::put_abi(m_target))
-	));
+	auto geometry = compositor.CreateRoundedRectangleGeometry();
+	geometry.Size(size);
+	geometry.CornerRadius({Config::ProgressBarRadius, Config::ProgressBarRadius});
 
-	auto containerVisual = m_compositor.CreateContainerVisual();
-	visuals = containerVisual.Children();
-	m_target.Root(containerVisual);
+	//draw the rounded rectangle with composition
+	auto roundedRectangle = compositor.CreateSpriteShape(geometry);
+	roundedRectangle.FillBrush(compositor.CreateColorBrush(Config::ProgressBarFillColor));
+	Shapes().Append(roundedRectangle);
+	Size(size);
+
+	visuals.InsertAtTop(*this);
+
+
+	//animaition
+	constexpr float indeterminateProgressBarIndicatorWidth = Config::ProgressBarWidth * 0.4f;
+	constexpr float ContainerAnimationStartPosition = indeterminateProgressBarIndicatorWidth * -1.0f;
+	constexpr float ContainerAnimationEndPosition = indeterminateProgressBarIndicatorWidth * 3.0f;
+	Vector3KeyFrameAnimation animation
+	{
+		compositor,
+		std::chrono::seconds{2},
+		Vector3KeyFrame{.normalizedProgressKey = 0.f, .value = {ContainerAnimationStartPosition, 0,0}},
+		EasingVector3KeyFrame{
+			0.75f,
+			{ContainerAnimationEndPosition, 0, 0},
+			compositor.CreateCubicBezierEasingFunction({0.4f, 0.0f}, {0.6f, 1.0f})
+		},
+		Vector3KeyFrame{.normalizedProgressKey = 1.0f, .value = {ContainerAnimationEndPosition, 0, 0}}
+	};
+	animation.IterationBehavior(winrt::Windows::UI::Composition::AnimationIterationBehavior::Forever);
+	StartAnimation(L"Offset", animation);
 }

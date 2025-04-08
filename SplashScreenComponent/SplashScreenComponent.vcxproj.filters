@@ -53,9 +53,6 @@
     <ClCompile Include="ColorAnimationUsingKeyFrames.cpp">
       <Filter>Components\Composition\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="DoubleAnimationUsingKeyFrames.cpp">
-      <Filter>Components\Composition\Animation</Filter>
-    </ClCompile>
     <ClCompile Include="ProgressBarComposition.cpp">
       <Filter>Components\Composition</Filter>
     </ClCompile>
@@ -67,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="Svg.cpp">
       <Filter>Components\Svg</Filter>
+    </ClCompile>
+    <ClCompile Include="CompositionWrapper.cpp">
+      <Filter>Components\Composition</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +123,21 @@
     </ClInclude>
     <ClInclude Include="Svg.h">
       <Filter>Components\Svg</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3KeyFrameAnimation.h">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3KeyFrame.h">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyFrameBase.h">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyFrameAnimationHelper.h">
+      <Filter>Components\Composition\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="CompositionWrapper.h">
+      <Filter>Components\Composition</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

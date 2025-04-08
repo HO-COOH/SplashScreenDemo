@@ -1,7 +1,5 @@
 #pragma once
+#include "KeyFrameBase.h"
 
-struct ScalarKeyFrame
-{
-	float normalizedProgressKey;
-	float value;
-};
+using ScalarKeyFrame = KeyFrameBase<float>;
+using EasingScalarKeyFrame = EasingKeyFrameBase<float>;
