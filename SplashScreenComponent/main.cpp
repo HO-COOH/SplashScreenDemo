@@ -15,6 +15,9 @@
 #include <d2d1_2.h>
 #include "D2D1Factory.h"
 #include <dwmapi.h>
+#include "Glyphs.h"
+#include "Button.h"
+#include "SvgSprite.h"
 #include "LogoCompositionSurface.h"
 #include "DoubleAnimationUsingKeyFrames.h"
 #include "ProgressBarComposition.h"
@@ -40,8 +43,9 @@ class SplashWindow
 
 	Background background{ nullptr };
 	DoubleAnimationUsingKeyFrames opacityAnimation{ nullptr };
-	winrt::Windows::UI::Composition::SpriteVisual logoSprite{ nullptr };
 	ProgressBarComposition progressBar{ nullptr };
+	LogoCompositionSurface logo{ nullptr };
+	Button captionButton[3]{ nullptr, nullptr, nullptr };
 
 	constexpr static auto className = L"SplashWindowClass";
 	static void registerClassIfNeeded()
@@ -121,7 +125,7 @@ class SplashWindow
 				syncMoveWithWindow = reinterpret_cast<HWND>(wparam);
 				auto self = getSelf(hwnd);
 				self->background.StartToFade(self->opacityAnimation);
-				self->logoSprite.StartAnimation(L"Opacity", self->opacityAnimation);
+				self->logo.StartAnimation(L"Opacity", self->opacityAnimation);
 				
 				return 0;
 			}
@@ -166,13 +170,9 @@ class SplashWindow
 
 		m_compositionWrapper.emplace(m_hwnd);
 		auto dpi = GetDpiForWindow(m_hwnd);
-		LogoCompositionSurface logoSurface{ m_compositionWrapper->GetInterop().get(), width, height };
 		
-		auto logoSurfaceBrush = m_compositionWrapper->m_compositor.CreateSurfaceBrush(logoSurface.m_drawingSurface);
-		logoSprite = m_compositionWrapper->m_compositor.CreateSpriteVisual();
-		logoSprite.Size({ static_cast<float>(width), static_cast<float>(height) });
-		logoSprite.Brush(logoSurfaceBrush);
-		m_compositionWrapper->visuals.InsertAtTop(logoSprite);
+		logo = LogoCompositionSurface{ m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice(), width, height };
+		m_compositionWrapper->visuals.InsertAtTop(logo);
 
 		
 		//new
@@ -187,7 +187,7 @@ class SplashWindow
 
 		opacityAnimation = DoubleAnimationUsingKeyFrames{
 			m_compositionWrapper->m_compositor,
-			std::chrono::milliseconds{300},
+			std::chrono::milliseconds{Config::WindowBackgroundAnimationDurationMilliseconds},
 			ScalarKeyFrame{ .normalizedProgressKey = 1.0f }
 		};
 
@@ -196,6 +196,18 @@ class SplashWindow
 			{Config::ProgressBarWidth, Config::ProgressBarHeight},
 			m_compositionWrapper->visuals
 		};
+
+		{
+			//draw caption buttons
+			captionButton[0] = Button{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Restore, {Config::CaptionButtonGlyphSize, Config::CaptionButtonGlyphSize}, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()} };
+			captionButton[1] = Button{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Close, {Config::CaptionButtonGlyphSize, Config::CaptionButtonGlyphSize}, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()} };
+			captionButton[2] = Button{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Maximize, {Config::CaptionButtonGlyphSize, Config::CaptionButtonGlyphSize}, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()} };
+		}
+
+		captionButton[1].Offset({ 50.f, 0, 0 });
+		captionButton[2].Offset({ 100.f, 0, 0 });
+		for (auto const& button : captionButton)
+			m_compositionWrapper->visuals.InsertAtTop(button);
 
 		messageQueue.emplace(m_hwnd);
 

@@ -95,6 +95,17 @@ flowchart TD
     converter --ID2D1RenderTarget.CreateBitmapFromWicBitmap--> bitmap[ID2D1Bitmap]
 ```
 
+```mermaid
+flowchart TD
+    D3D11Device[D3D11CreateDevice] --ID3D11Device-->DXGIDevice[IDXGIDevice]
+    D2D1Factory[CreateD2D1Factory] --CreateDevice-->ID2D1Device
+    DXGIDevice-->ID2D1Device
+    Compositor--as ABI::Windows::UI::Composition::ICompositorInterop-->ICompositorInterop[ABI::Windows::UI::Composition::ICompositorInterop]
+    ICompositorInterop--CreateGraphicsDevice-->CompositionGraphicsDevice[winrt::Windows::UI::CompositionGraphicsDevice]
+    ID2D1Device-->CompositionGraphicsDevice
+    CompositionGraphicsDevice--CreateDrawingSurface-->winrt::Windows::UI::Composition::CompositionDrawingSurface
+```
+
 ### Drawing the progress bar
 The winui3 `ProgressBar` style is not in the `generic.xaml`, but in [the github repo](https://github.com/microsoft/microsoft-ui-xaml/blob/3b4ee2bd3de498e27517e82cf840acd000970ffc/src/controls/dev/ProgressBar/ProgressBar.xaml).
 Copy the `ControlTemplate` (`VisualState` removed).

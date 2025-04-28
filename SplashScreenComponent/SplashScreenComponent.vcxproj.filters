@@ -68,6 +68,18 @@
     <ClCompile Include="CompositionWrapper.cpp">
       <Filter>Components\Composition</Filter>
     </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Components\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadedSvgSurface.cpp">
+      <Filter>Components\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="SvgSprite.cpp">
+      <Filter>Components\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="DWriteFactory.cpp">
+      <Filter>D2D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StartupTimer.h">
@@ -138,6 +150,18 @@
     </ClInclude>
     <ClInclude Include="CompositionWrapper.h">
       <Filter>Components\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Components\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadedSvgSurface.h">
+      <Filter>Components\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="SvgSprite.h">
+      <Filter>Components\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="DWriteFactory.h">
+      <Filter>D2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

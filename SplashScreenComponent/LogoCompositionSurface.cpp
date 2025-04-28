@@ -1,21 +1,14 @@
 #include "LogoCompositionSurface.h"
-#include <d2d1_1.h>
-#include <d2d1_2.h>
+#include <optional>
 #include "D2D1Factory.h"
 #include "Config.h"
+#include <d2d1_1.h>
+#include "Logo.h"
 
-LogoCompositionSurface::LogoCompositionSurface(ABI::Windows::UI::Composition::ICompositorInterop* compositorInterop, UINT scaledWidth, UINT scaledHeight)
+LogoCompositionSurface::LogoCompositionSurface(winrt::Windows::UI::Composition::Compositor const& compositor, winrt::Windows::UI::Composition::CompositionGraphicsDevice const& graphicsDevice, UINT scaledWidth, UINT scaledHeight) : SpriteVisual{compositor.CreateSpriteVisual() }
 {
-	wil::com_ptr<IDXGIDevice> dxgiDevice;
 
-	winrt::check_hresult(d3d11Device->QueryInterface(dxgiDevice.put()));
-	winrt::check_hresult(D2D1Factory::Instance->CreateDevice(dxgiDevice.get(), d2dDevice.put()));
-
-	winrt::Windows::UI::Composition::CompositionGraphicsDevice graphicsDevice{ nullptr };
-	winrt::check_hresult(compositorInterop->CreateGraphicsDevice(
-		d2dDevice.get(),
-		reinterpret_cast<ABI::Windows::UI::Composition::ICompositionGraphicsDevice**>(winrt::put_abi(graphicsDevice))));
-	m_drawingSurface = graphicsDevice.CreateDrawingSurface(
+	winrt::Windows::UI::Composition::CompositionDrawingSurface m_drawingSurface = graphicsDevice.CreateDrawingSurface(
 		{
 			static_cast<float>(scaledWidth),
 			static_cast<float>(scaledHeight)
@@ -33,9 +26,15 @@ LogoCompositionSurface::LogoCompositionSurface(ABI::Windows::UI::Composition::IC
 		&offset
 	);
 
-	m_logo.emplace(Config::LogoPath, d2dContext.get());
-	m_logo->OnSize(scaledWidth, scaledHeight);
-	m_logo->OnPaint(d2dContext.get());
+	Logo m_logo{ Config::LogoPath, d2dContext.get() };
+	scaledWidth += offset.x;
+	scaledHeight += offset.y;
+
+	m_logo.OnSize(scaledWidth, scaledHeight);
+	m_logo.OnPaint(d2dContext.get());
 
 	winrt::check_hresult(m_drawingSurfaceInterop->EndDraw());
+
+	Size({ static_cast<float>(scaledWidth), static_cast<float>(scaledHeight) });
+	Brush(compositor.CreateSurfaceBrush(m_drawingSurface));
 }

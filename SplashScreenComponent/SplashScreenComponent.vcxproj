@@ -148,10 +148,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Background.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="ColorAnimationUsingKeyFrames.cpp" />
     <ClCompile Include="ComponentBase.cpp" />
     <ClCompile Include="CompositionWrapper.cpp" />
     <ClCompile Include="D2D1Factory.cpp" />
+    <ClCompile Include="DWriteFactory.cpp" />
+    <ClCompile Include="LoadedSvgSurface.cpp" />
     <ClCompile Include="Logo.cpp" />
     <ClCompile Include="LogoCompositionSurface.cpp" />
     <ClCompile Include="main.cpp" />
@@ -159,10 +162,12 @@
     <ClCompile Include="ProgressBarComposition.cpp" />
     <ClCompile Include="StartupTimer.cpp" />
     <ClCompile Include="Svg.cpp" />
+    <ClCompile Include="SvgSprite.cpp" />
     <ClCompile Include="WICImagingFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Background.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="ColorAnimationUsingKeyFrames.h" />
     <ClInclude Include="ColorKeyFrame.h" />
     <ClInclude Include="ComponentBase.h" />
@@ -171,9 +176,11 @@
     <ClInclude Include="D2D1Factory.h" />
     <ClInclude Include="D3D11Device.hpp" />
     <ClInclude Include="DoubleAnimationUsingKeyFrames.h" />
+    <ClInclude Include="DWriteFactory.h" />
     <ClInclude Include="DXGIFactory.hpp" />
     <ClInclude Include="KeyFrameAnimationHelper.h" />
     <ClInclude Include="KeyFrameBase.h" />
+    <ClInclude Include="LoadedSvgSurface.h" />
     <ClInclude Include="Logo.h" />
     <ClInclude Include="LogoCompositionSurface.h" />
     <ClInclude Include="MainApplicationLoadingMessageQueue.h" />
@@ -182,6 +189,7 @@
     <ClInclude Include="StartupTimer.h" />
     <ClInclude Include="Glyphs.h" />
     <ClInclude Include="Svg.h" />
+    <ClInclude Include="SvgSprite.h" />
     <ClInclude Include="Vector3KeyFrame.h" />
     <ClInclude Include="Vector3KeyFrameAnimation.h" />
     <ClInclude Include="WICImagingFactory.h" />
