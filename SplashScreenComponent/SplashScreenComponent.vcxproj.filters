@@ -80,6 +80,12 @@
     <ClCompile Include="DWriteFactory.cpp">
       <Filter>D2D</Filter>
     </ClCompile>
+    <ClCompile Include="SplashWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowSizeManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StartupTimer.h">
@@ -162,6 +168,15 @@
     </ClInclude>
     <ClInclude Include="DWriteFactory.h">
       <Filter>D2D</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseWindow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SplashWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowSizeManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

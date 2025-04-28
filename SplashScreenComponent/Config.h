@@ -36,7 +36,8 @@ namespace Config
 	constexpr static auto ProgressBarMarginBottom = 100.f;
 	constexpr static auto LogoWidth = 300;
 	constexpr static auto LogoHeight = 300;
-	constexpr static auto LogoPath = LR"(D:\SplashScreenDemo\SplashScreenDemo (Package)\Images\StoreLogo.png)";
+	//constexpr static auto LogoPath = LR"(D:\SplashScreenDemo\SplashScreenDemo (Package)\Images\StoreLogo.png)";
+	constexpr  static auto LogoFile = L"StoreLogo.png";
 	constexpr static unsigned int BackgroundColor = 0xFFB900;
 	constexpr static auto ExtendsContentIntoTitleBar = false;
 

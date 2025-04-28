@@ -4,6 +4,20 @@
 #include "Config.h"
 #include <d2d1_1.h>
 #include "Logo.h"
+#include <filesystem>
+
+static auto GetAsset(wchar_t const* fileName)
+{
+	std::array<wchar_t, MAX_PATH> buffer{};
+	GetModuleFileName(nullptr, buffer.data(), std::size(buffer));
+	return std::filesystem::path{ buffer.data() }
+		.parent_path()
+		.parent_path()
+		.parent_path() 
+		/ L"SplashScreenDemo (Package)" 
+		/ L"Images" 
+		/ fileName;
+}
 
 LogoCompositionSurface::LogoCompositionSurface(winrt::Windows::UI::Composition::Compositor const& compositor, winrt::Windows::UI::Composition::CompositionGraphicsDevice const& graphicsDevice, UINT scaledWidth, UINT scaledHeight) : SpriteVisual{compositor.CreateSpriteVisual() }
 {
@@ -26,7 +40,7 @@ LogoCompositionSurface::LogoCompositionSurface(winrt::Windows::UI::Composition::
 		&offset
 	);
 
-	Logo m_logo{ Config::LogoPath, d2dContext.get() };
+	Logo m_logo{ GetAsset(Config::LogoFile).wstring(), d2dContext.get()};
 	scaledWidth += offset.x;
 	scaledHeight += offset.y;
 

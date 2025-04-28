@@ -160,13 +160,16 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainApplicationLoadingMessageQueue.cpp" />
     <ClCompile Include="ProgressBarComposition.cpp" />
+    <ClCompile Include="SplashWindow.cpp" />
     <ClCompile Include="StartupTimer.cpp" />
     <ClCompile Include="Svg.cpp" />
     <ClCompile Include="SvgSprite.cpp" />
     <ClCompile Include="WICImagingFactory.cpp" />
+    <ClCompile Include="WindowSizeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Background.h" />
+    <ClInclude Include="BaseWindow.hpp" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="ColorAnimationUsingKeyFrames.h" />
     <ClInclude Include="ColorKeyFrame.h" />
@@ -186,6 +189,7 @@
     <ClInclude Include="MainApplicationLoadingMessageQueue.h" />
     <ClInclude Include="ProgressBarComposition.h" />
     <ClInclude Include="ScalarKeyFrame.h" />
+    <ClInclude Include="SplashWindow.h" />
     <ClInclude Include="StartupTimer.h" />
     <ClInclude Include="Glyphs.h" />
     <ClInclude Include="Svg.h" />
@@ -193,6 +197,7 @@
     <ClInclude Include="Vector3KeyFrame.h" />
     <ClInclude Include="Vector3KeyFrameAnimation.h" />
     <ClInclude Include="WICImagingFactory.h" />
+    <ClInclude Include="WindowSizeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

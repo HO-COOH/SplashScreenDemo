@@ -6,8 +6,7 @@
 #include <windows.ui.composition.interop.h>
 #include "D3D11Device.hpp"
 #include "DXGIFactory.hpp"
-
-struct ID2D1Device;
+#include <d2d1_1.h>
 
 class CompositionWrapper
 {
