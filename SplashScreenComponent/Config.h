@@ -46,4 +46,7 @@ namespace Config
 	constexpr static auto CaptionButtonHeight = 32;
 	
 	constexpr static auto WindowBackgroundAnimationDurationMilliseconds = 300;
+	constexpr static auto CaptionButtonColorAnimationDurationMilliseconds = 200;
+
+	constexpr static auto CaptionTextFontSize = 11.f;
 }

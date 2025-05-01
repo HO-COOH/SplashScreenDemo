@@ -50,6 +50,17 @@ void SplashWindow::OnActivate(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 void SplashWindow::OnSize(HWND hwnd, WPARAM wparam, UINT width, UINT height)
 {
+	auto self = getSelfFromHwnd(hwnd);
+	if (self->background)
+		self->background.Size({ static_cast<float>(width), static_cast<float>(height) });
+}
+
+void SplashWindow::OnMouseMove(HWND hwnd, WPARAM buttonDown, WORD x, WORD y)
+{
+	auto self = getSelfFromHwnd(hwnd);
+	if (!self->maximizeButton.HitTest(x, y)) self->maximizeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
+	if (!self->minimizeButton.HitTest(x, y)) self->minimizeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
+	if (!self->closeButton.HitTest(x, y)) self->closeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
 }
 
 LRESULT SplashWindow::OnUserMessage(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -60,6 +71,38 @@ LRESULT SplashWindow::OnUserMessage(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 		getSelfFromHwnd(hwnd)->onMainAppLoaded();
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
+}
+
+void SplashWindow::OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggestedPosition)
+{
+	auto self = getSelfFromHwnd(hwnd);
+	winrt::Windows::Foundation::Size const scaledSvgSize
+	{
+		ScaleForDpi(Config::CaptionButtonGlyphSize, dpiX),
+		ScaleForDpi(Config::CaptionButtonGlyphSize, dpiX)
+	};
+	winrt::Windows::Foundation::Numerics::float2 const scaledButtonSize
+	{ 
+		ScaleForDpi(Config::CaptionButtonWidth, dpiX),  
+		ScaleForDpi(Config::CaptionButtonHeight, dpiX) 
+	};
+
+	self->closeButton.SetContent(SvgSprite{ Glyphs::Close, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
+	self->closeButton.Size(scaledButtonSize);
+
+	self->maximizeButton.SetContent(SvgSprite{ Glyphs::Maximize, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
+	self->maximizeButton.Size(scaledButtonSize);
+
+	self->minimizeButton.SetContent(SvgSprite{ Glyphs::Minimize, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
+	self->minimizeButton.Size(scaledButtonSize);
+
+	auto const clientRect = self->ClientRect();
+	self->background.Size(winrt::Windows::Foundation::Numerics::float2{ 
+		static_cast<float>(clientRect.right), 
+		static_cast<float>(clientRect.bottom) 
+	});
+
+	BaseWindow::OnDpiChanged(hwnd, dpiX, dpiY, suggestedPosition);
 }
 
 void SplashWindow::onMainAppLoaded()
@@ -114,17 +157,47 @@ SplashWindow::SplashWindow() : BaseWindow{
 		m_compositionWrapper->visuals
 	};
 
+	winrt::Windows::Foundation::Numerics::float2 const scaledButtonSize{ ScaleForDpi(Config::CaptionButtonWidth, dpi), ScaleForDpi(Config::CaptionButtonHeight, dpi) };
 	{
+		ColorAnimationUsingKeyFrames minimizeCaptionButtonColorAnimation
+		{
+			m_compositionWrapper->m_compositor,
+			std::chrono::milliseconds{Config::CaptionButtonColorAnimationDurationMilliseconds},
+			{
+				ColorKeyFrame{.normalizedProgressKey = 1.f, .color = Config::Dark::CaptionButtonPointerOverColor}
+			}
+		};
+
+		ColorAnimationUsingKeyFrames closeCaptionButtonColorAnimation
+		{
+			m_compositionWrapper->m_compositor,
+			std::chrono::milliseconds{Config::CaptionButtonColorAnimationDurationMilliseconds},
+			{
+				ColorKeyFrame{1.f, Config::Dark::CaptionCloseButtonPointerOverColor}
+			}
+		};
+
 		//draw caption buttons
-		captionButton[0] = Button{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Restore, {Config::CaptionButtonGlyphSize, Config::CaptionButtonGlyphSize}, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()} };
-		captionButton[1] = Button{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Close, {Config::CaptionButtonGlyphSize, Config::CaptionButtonGlyphSize}, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()} };
-		captionButton[2] = Button{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Maximize, {Config::CaptionButtonGlyphSize, Config::CaptionButtonGlyphSize}, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()} };
+		winrt::Windows::Foundation::Size const scaledSvgSize{ ScaleForDpi(Config::CaptionButtonGlyphSize, dpi), ScaleForDpi(Config::CaptionButtonGlyphSize, dpi) };
+		maximizeButton = CaptionButton{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Maximize, scaledSvgSize, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()}, scaledButtonSize, minimizeCaptionButtonColorAnimation };
+		closeButton = CaptionButton{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Close, scaledSvgSize, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()}, scaledButtonSize, closeCaptionButtonColorAnimation };
+		minimizeButton = CaptionButton{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Minimize, scaledSvgSize, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()}, scaledButtonSize, minimizeCaptionButtonColorAnimation };
 	}
 
-	captionButton[1].Offset({ 50.f, 0, 0 });
-	captionButton[2].Offset({ 100.f, 0, 0 });
-	for (auto const& button : captionButton)
+
+	maximizeButton.Offset({ scaledButtonSize.x, 0, 0 });
+	closeButton.Offset({ scaledButtonSize.x * 2, 0, 0 });
+	for (auto const& button : {maximizeButton, closeButton, minimizeButton})
 		m_compositionWrapper->visuals.InsertAtTop(button);
+
+	pointerExitCaptoinButtonColorAnimation = ColorAnimationUsingKeyFrames
+	{
+		m_compositionWrapper->m_compositor,
+		std::chrono::milliseconds{Config::CaptionButtonColorAnimationDurationMilliseconds},
+		{
+			ColorKeyFrame{1.f, winrt::Windows::UI::Colors::Transparent() }
+		}
+	};
 
 	MainApplicationLoadingMessageQueue{ m_hwnd.get() };
 }

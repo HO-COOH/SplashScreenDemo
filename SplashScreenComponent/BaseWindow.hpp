@@ -14,7 +14,9 @@ struct StringLiteral {
 template<typename T, StringLiteral className>
 class BaseWindow
 {
-	static void OnPaint(HWND) {}
+	static void OnPaint(HWND) 
+	{
+	}
 protected:
 	wil::unique_hwnd m_hwnd;
 
@@ -31,8 +33,17 @@ protected:
 	{
 	}
 
-	static void OnDpiChanged(HWND, WORD dpiX, WORD dpiY, RECT* suggestPosition)
+	static void OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggestPosition)
 	{
+		SetWindowPos(
+			hwnd,
+			nullptr,
+			suggestPosition->left,
+			suggestPosition->top,
+			suggestPosition->right - suggestPosition->left,
+			suggestPosition->bottom - suggestPosition->top,
+			SWP_NOZORDER | SWP_NOACTIVATE
+		);
 	}
 
 	static void OnActivate(HWND hwnd, WPARAM wparam, LPARAM lparam)
@@ -48,13 +59,18 @@ protected:
 		return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 
+	//static LRESULT OnMouseMove(HWND hwnd, WPARAM buttonDown, WORD x, WORD y)
+	//{
+	//	return DefWindowProc(hwnd, WM_MOUSEMOVE, buttonDown, MAKELONG(x, y));
+	//}
+
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
 		switch (msg)
 		{
 			//Methods that have default (no-op) implementation
 			case WM_DPICHANGED:
-				OnDpiChanged(hwnd, LOWORD(wparam), HIWORD(wparam), reinterpret_cast<RECT*>(lparam));
+				T::OnDpiChanged(hwnd, LOWORD(wparam), HIWORD(wparam), reinterpret_cast<RECT*>(lparam));
 				break;
 			case WM_NCCREATE:
 				OnNCCreate(hwnd, reinterpret_cast<CREATESTRUCT*>(lparam));
@@ -68,9 +84,12 @@ protected:
 				//Methods that must be implemented by derived class 
 			case WM_PAINT:
 				T::OnPaint(hwnd);
-				return 0;
+				break;
 			case WM_SIZE:
 				T::OnSize(hwnd, wparam, LOWORD(lparam), HIWORD(lparam));
+				return 0;
+			case WM_MOUSEMOVE:
+				T::OnMouseMove(hwnd, wparam, LOWORD(lparam), HIWORD(lparam));
 				return 0;
 			default:
 				return T::OnUserMessage(hwnd, msg, wparam, lparam);

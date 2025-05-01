@@ -9,9 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="D2D">
-      <UniqueIdentifier>{85cbe549-68ae-4a8d-b0f4-b951af9d9245}</UniqueIdentifier>
-    </Filter>
     <Filter Include="D3D">
       <UniqueIdentifier>{083e14b9-4332-4d16-83c3-14a39abfdc0f}</UniqueIdentifier>
     </Filter>
@@ -27,6 +24,12 @@
     <Filter Include="Components\Svg">
       <UniqueIdentifier>{b6c91bed-6fd1-47cd-b6f4-65ddabf65fe5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Composition\Buttons">
+      <UniqueIdentifier>{8feaf144-35d2-45db-b407-014538616e99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Composition\D2D">
+      <UniqueIdentifier>{85cbe549-68ae-4a8d-b0f4-b951af9d9245}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,10 +42,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D2D1Factory.cpp">
-      <Filter>D2D</Filter>
+      <Filter>Components\Composition\D2D</Filter>
     </ClCompile>
     <ClCompile Include="WICImagingFactory.cpp">
-      <Filter>D2D</Filter>
+      <Filter>Components\Composition\D2D</Filter>
     </ClCompile>
     <ClCompile Include="Logo.cpp">
       <Filter>Components</Filter>
@@ -68,9 +71,6 @@
     <ClCompile Include="CompositionWrapper.cpp">
       <Filter>Components\Composition</Filter>
     </ClCompile>
-    <ClCompile Include="Button.cpp">
-      <Filter>Components\Composition</Filter>
-    </ClCompile>
     <ClCompile Include="LoadedSvgSurface.cpp">
       <Filter>Components\Composition</Filter>
     </ClCompile>
@@ -78,13 +78,22 @@
       <Filter>Components\Composition</Filter>
     </ClCompile>
     <ClCompile Include="DWriteFactory.cpp">
-      <Filter>D2D</Filter>
+      <Filter>Components\Composition\D2D</Filter>
     </ClCompile>
     <ClCompile Include="SplashWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WindowSizeManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Components\Composition\Buttons</Filter>
+    </ClCompile>
+    <ClCompile Include="CaptionButton.cpp">
+      <Filter>Components\Composition\Buttons</Filter>
+    </ClCompile>
+    <ClCompile Include="TextBlock.cpp">
+      <Filter>Components\Composition</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -95,10 +104,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D2D1Factory.h">
-      <Filter>D2D</Filter>
+      <Filter>Components\Composition\D2D</Filter>
     </ClInclude>
     <ClInclude Include="WICImagingFactory.h">
-      <Filter>D2D</Filter>
+      <Filter>Components\Composition\D2D</Filter>
     </ClInclude>
     <ClInclude Include="D3D11Device.hpp">
       <Filter>D3D</Filter>
@@ -157,9 +166,6 @@
     <ClInclude Include="CompositionWrapper.h">
       <Filter>Components\Composition</Filter>
     </ClInclude>
-    <ClInclude Include="Button.h">
-      <Filter>Components\Composition</Filter>
-    </ClInclude>
     <ClInclude Include="LoadedSvgSurface.h">
       <Filter>Components\Composition</Filter>
     </ClInclude>
@@ -167,7 +173,7 @@
       <Filter>Components\Composition</Filter>
     </ClInclude>
     <ClInclude Include="DWriteFactory.h">
-      <Filter>D2D</Filter>
+      <Filter>Components\Composition\D2D</Filter>
     </ClInclude>
     <ClInclude Include="BaseWindow.hpp">
       <Filter>Header Files</Filter>
@@ -178,6 +184,15 @@
     <ClInclude Include="WindowSizeManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Components\Composition\Buttons</Filter>
+    </ClInclude>
+    <ClInclude Include="CaptionButton.h">
+      <Filter>Components\Composition\Buttons</Filter>
+    </ClInclude>
+    <ClInclude Include="TextBlock.h">
+      <Filter>Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -185,5 +200,8 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
   </ItemGroup>
 </Project>

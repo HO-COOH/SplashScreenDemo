@@ -7,8 +7,8 @@
 #include "DoubleAnimationUsingKeyFrames.h"
 #include "Background.h"
 #include "LogoCompositionSurface.h"
-
-
+#include "CaptionButton.h"
+#include "ColorAnimationUsingKeyFrames.h"
 
 //WIP
 class SplashWindow : public BaseWindow<SplashWindow, L"SplashWindowClass">
@@ -19,7 +19,11 @@ class SplashWindow : public BaseWindow<SplashWindow, L"SplashWindowClass">
 	DoubleAnimationUsingKeyFrames opacityAnimation{ nullptr };
 	ProgressBarComposition progressBar{ nullptr };
 	LogoCompositionSurface logo{ nullptr };
-	Button captionButton[3]{ nullptr, nullptr, nullptr };
+	//Button captionButton[3]{ nullptr, nullptr, nullptr }; 
+	CaptionButton minimizeButton{ nullptr };
+	CaptionButton maximizeButton{ nullptr };
+	CaptionButton closeButton{ nullptr };
+	ColorAnimationUsingKeyFrames pointerExitCaptoinButtonColorAnimation{ nullptr };
 
 	//play opacity fade animation
 	void onMainAppLoaded();
@@ -33,7 +37,9 @@ public:
 	static void OnWindowPosChanging(HWND hwnd, WINDOWPOS* windowPos);
 	static void OnActivate(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	static void OnSize(HWND hwnd, WPARAM wparam, UINT width, UINT height);
+	static void OnMouseMove(HWND hwnd, WPARAM buttonDown, WORD x, WORD y);
 	static LRESULT OnUserMessage(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	static void OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggestedPosition);
 
 	static HWND syncMoveWithWindow;
 };

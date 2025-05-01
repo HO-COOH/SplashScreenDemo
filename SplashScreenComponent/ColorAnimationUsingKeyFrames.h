@@ -12,4 +12,6 @@ public:
 		winrt::Windows::Foundation::TimeSpan duration,
 		std::initializer_list<ColorKeyFrame> const& keyFrames
 	);
+
+	ColorAnimationUsingKeyFrames(std::nullptr_t) : ColorKeyFrameAnimation{ nullptr } {}
 };
