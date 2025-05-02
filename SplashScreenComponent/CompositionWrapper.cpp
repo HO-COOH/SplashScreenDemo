@@ -25,7 +25,7 @@ CompositionWrapper::CompositionWrapper(HWND hwnd) :
 		reinterpret_cast<ABI::Windows::UI::Composition::Desktop::IDesktopWindowTarget**>(winrt::put_abi(m_target))
 	));
 
-	auto containerVisual = m_compositor.CreateContainerVisual();
+	containerVisual = m_compositor.CreateContainerVisual();
 	visuals = containerVisual.Children();
 	m_target.Root(containerVisual);
 }

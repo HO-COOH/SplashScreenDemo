@@ -7,6 +7,7 @@
 #include <d2d1_2.h>
 #include "D2D1Factory.h"
 #include "Glyphs.h"
+#include <windowsx.h> // for GET_Y_LPARAM() macro
 
 extern LPSTR argv;
 
@@ -16,6 +17,15 @@ static auto ScaleForDpi(auto value, UINT dpi)
 {
 	return static_cast<float>(value * dpi / 96);
 };
+
+static auto ScaleForDpi(winrt::Windows::Foundation::Numerics::float3 value, UINT dpi)
+{
+	return winrt::Windows::Foundation::Numerics::float3{
+		ScaleForDpi(value.x, dpi),
+		ScaleForDpi(value.y, dpi),
+		ScaleForDpi(value.z, dpi)
+	};
+}
 
 
 void SplashWindow::OnWindowPosChanging(HWND hwnd, WINDOWPOS* windowPos)
@@ -68,7 +78,7 @@ LRESULT SplashWindow::OnUserMessage(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 	if (msg == WM_USER + 1)
 	{
 		syncMoveWithWindow = reinterpret_cast<HWND>(wparam);
-		getSelfFromHwnd(hwnd)->onMainAppLoaded();
+		//getSelfFromHwnd(hwnd)->onMainAppLoaded();
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
@@ -89,7 +99,7 @@ void SplashWindow::OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggested
 
 	self->closeButton.SetContent(SvgSprite{ Glyphs::Close, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
 	self->closeButton.Size(scaledButtonSize);
-
+	
 	self->maximizeButton.SetContent(SvgSprite{ Glyphs::Maximize, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
 	self->maximizeButton.Size(scaledButtonSize);
 
@@ -102,14 +112,95 @@ void SplashWindow::OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggested
 		static_cast<float>(clientRect.bottom) 
 	});
 
+	self->m_resizeHandleHeight = GetSystemMetricsForDpi(SM_CYCAPTION, dpiX);
 	BaseWindow::OnDpiChanged(hwnd, dpiX, dpiY, suggestedPosition);
+}
+
+LRESULT SplashWindow::OnNCCalcSize(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	if (!wparam)
+	{
+		return 0;
+	}
+
+	auto params = reinterpret_cast<NCCALCSIZE_PARAMS*>(lparam);
+
+	// Store the original top before the default window proc applies the
+	// default frame.
+	const auto originalTop = params->rgrc[0].top;
+
+	const auto originalSize = params->rgrc[0];
+
+	// apply the default frame
+	const auto ret = DefWindowProc(hwnd, WM_NCCALCSIZE, wparam, lparam);
+	if (ret != 0)
+	{
+		return ret;
+	}
+
+	auto newSize = params->rgrc[0];
+	// Re-apply the original top from before the size of the default frame was applied.
+	newSize.top = originalTop;
+
+	//// WM_NCCALCSIZE is called before WM_SIZE
+	//_UpdateMaximizedState();
+
+	//// We don't need this correction when we're fullscreen. We will have the
+	//// WS_POPUP size, so we don't have to worry about borders, and the default
+	//// frame will be fine.
+	//if (_isMaximized && !_fullscreen)
+	//{
+	//	// When a window is maximized, its size is actually a little bit more
+	//	// than the monitor's work area. The window is positioned and sized in
+	//	// such a way that the resize handles are outside of the monitor and
+	//	// then the window is clipped to the monitor so that the resize handle
+	//	// do not appear because you don't need them (because you can't resize
+	//	// a window when it's maximized unless you restore it).
+	//	newSize.top += _GetResizeHandleHeight();
+	//}
+
+	params->rgrc[0] = newSize;
+	return 0;
+}
+
+LRESULT SplashWindow::OnNCHitTest(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	if (auto const originalNCHitTestResult = DefWindowProc(hwnd, WM_NCHITTEST, wparam, lparam);originalNCHitTestResult != HTCLIENT)
+		return originalNCHitTestResult;
+
+	auto self = getSelfFromHwnd(hwnd);
+	auto const windowRect = self->WindowRect();
+	auto xPos = GET_X_LPARAM(lparam);
+	auto yPos = GET_Y_LPARAM(lparam);
+	if (yPos <= windowRect.top + self->m_resizeHandleHeight)
+	{
+		yPos -= windowRect.top;
+		xPos -= windowRect.left;
+		if (self->maximizeButton.HitTest(xPos, yPos))
+			return HTMAXBUTTON;
+		if (self->minimizeButton.HitTest(xPos, yPos))
+			return HTMINBUTTON;
+		if (self->closeButton.HitTest(xPos, yPos))
+			return HTCLOSE;
+		return HTCAPTION;
+	}
+	return HTCLIENT;
 }
 
 void SplashWindow::onMainAppLoaded()
 {
-	background.StartToFade(opacityAnimation);
-	logo.StartAnimation(L"Opacity",opacityAnimation);
+	//background.StartToFade(opacityAnimation);
+	//logo.StartAnimation(L"Opacity",opacityAnimation);
+	m_compositionWrapper->containerVisual.StartAnimation(L"Opacity", opacityAnimation);
 }
+
+std::wstring SplashWindow::getSyncMoveWindowTitle()
+{
+	std::wstring text(GetWindowTextLengthW(SplashWindow::syncMoveWithWindow), {});
+	GetWindowText(SplashWindow::syncMoveWithWindow, text.data(), text.size() - 1);
+	return text;
+}
+
 
 SplashWindow::SplashWindow() : BaseWindow{
 	L"SplashWindow", 
@@ -117,13 +208,13 @@ SplashWindow::SplashWindow() : BaseWindow{
 	WS_OVERLAPPEDWINDOW, 
 	CW_USEDEFAULT, 
 	CW_USEDEFAULT, 
-	static_cast<int>(WindowSizeManager::GetWindowSize().width), 
-	static_cast<int>(WindowSizeManager::GetWindowSize().height)
+	static_cast<int>(WindowSizeManager::GetWindowSize(GetDpiForSystem()).cx), 
+	static_cast<int>(WindowSizeManager::GetWindowSize(GetDpiForSystem()).cy)
 }
 {
 	StartupTimer::GetInstance().SetBeforeMainWindowConstructed();
 
-	auto const [width, height] = WindowSizeManager::GetWindowSize();
+	auto const [width, height] = WindowSizeManager::GetWindowClientSize();
 
 	RECT rect{ .right = static_cast<LONG>(width), .bottom = static_cast<LONG>(height) };
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
@@ -131,8 +222,11 @@ SplashWindow::SplashWindow() : BaseWindow{
 	m_compositionWrapper.emplace(m_hwnd.get());
 	auto dpi = GetDpiForWindow(m_hwnd.get());
 
-	logo = LogoCompositionSurface{ m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice(), width, height };
+	logo = LogoCompositionSurface{ m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice(), 1240, 600 };
+	logo.AnchorPoint({ 0.5f, 0.5f });
+	logo.Offset({ width / 2.f, height / 2.f, 0 });
 	m_compositionWrapper->visuals.InsertAtTop(logo);
+
 
 
 	//new
@@ -151,11 +245,11 @@ SplashWindow::SplashWindow() : BaseWindow{
 		ScalarKeyFrame{.normalizedProgressKey = 1.0f }
 	};
 
-	progressBar = ProgressBarComposition{
-		m_compositionWrapper->m_compositor,
-		{Config::ProgressBarWidth, Config::ProgressBarHeight},
-		m_compositionWrapper->visuals
-	};
+	//progressBar = ProgressBarComposition{
+	//	m_compositionWrapper->m_compositor,
+	//	{Config::ProgressBarWidth, Config::ProgressBarHeight},
+	//	m_compositionWrapper->visuals
+	//};
 
 	winrt::Windows::Foundation::Numerics::float2 const scaledButtonSize{ ScaleForDpi(Config::CaptionButtonWidth, dpi), ScaleForDpi(Config::CaptionButtonHeight, dpi) };
 	{
@@ -184,9 +278,9 @@ SplashWindow::SplashWindow() : BaseWindow{
 		minimizeButton = CaptionButton{ m_compositionWrapper->m_compositor, SvgSprite{Glyphs::Minimize, scaledSvgSize, m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice()}, scaledButtonSize, minimizeCaptionButtonColorAnimation };
 	}
 
-
-	maximizeButton.Offset({ scaledButtonSize.x, 0, 0 });
-	closeButton.Offset({ scaledButtonSize.x * 2, 0, 0 });
+	minimizeButton.Offset({ width - scaledButtonSize.x * 3, 0, 0 });
+	maximizeButton.Offset({ width - scaledButtonSize.x * 2, 0, 0 });
+	closeButton.Offset({ width - scaledButtonSize.x, 0, 0 });
 	for (auto const& button : {maximizeButton, closeButton, minimizeButton})
 		m_compositionWrapper->visuals.InsertAtTop(button);
 
@@ -199,6 +293,23 @@ SplashWindow::SplashWindow() : BaseWindow{
 		}
 	};
 
+	titleText = TextBlock{ 
+		m_compositionWrapper->m_compositor, 
+		m_compositionWrapper->GetGraphicsDevice(), 
+		L"SplashScreenDemo", 
+		ScaleForDpi(Config::CaptionTextFontSize, dpi) 
+	};
+	titleText.Offset(ScaleForDpi(Config::CaptionTextOffset, dpi));
+	m_compositionWrapper->visuals.InsertAtTop(titleText);
+
 	MainApplicationLoadingMessageQueue{ m_hwnd.get() };
+
+	SetWindowPos(m_hwnd.get(),
+		nullptr,
+		0, 0, 0, 0,
+		SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+
+	m_resizeHandleHeight = GetSystemMetricsForDpi(SM_CYSIZE, dpi) + GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi) + GetSystemMetricsForDpi(SM_CYFRAME, dpi);
+	auto height2 = GetSystemMetrics(SM_CYSIZE);
 }
 

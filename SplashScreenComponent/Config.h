@@ -3,7 +3,9 @@
 
 #if __has_include("winrt/Windows.UI.h")
 #include <winrt/Windows.UI.h>
+#include <winrt/Windows.Foundation.Numerics.h>
 #endif
+#include <optional>
 
 namespace Config
 {
@@ -37,16 +39,18 @@ namespace Config
 	constexpr static auto LogoWidth = 300;
 	constexpr static auto LogoHeight = 300;
 	//constexpr static auto LogoPath = LR"(D:\SplashScreenDemo\SplashScreenDemo (Package)\Images\StoreLogo.png)";
-	constexpr  static auto LogoFile = L"StoreLogo.png";
-	constexpr static unsigned int BackgroundColor = 0xFFB900;
+	constexpr  static auto LogoFile = L"SplashScreen.scale-200.png";
+	constexpr static unsigned int BackgroundColor = 0x0078B4;
 	constexpr static auto ExtendsContentIntoTitleBar = false;
 
-	constexpr static auto CaptionButtonGlyphSize = 14;
+	constexpr static auto CaptionButtonGlyphSize = 11;
 	constexpr static auto CaptionButtonWidth = 46;
 	constexpr static auto CaptionButtonHeight = 32;
 	
-	constexpr static auto WindowBackgroundAnimationDurationMilliseconds = 300;
+	constexpr static auto WindowBackgroundAnimationDurationMilliseconds = 1000;
 	constexpr static auto CaptionButtonColorAnimationDurationMilliseconds = 200;
 
-	constexpr static auto CaptionTextFontSize = 11.f;
+	constexpr static auto CaptionTextFontSize = 13.f;
+	constexpr static winrt::Windows::Foundation::Numerics::float3 CaptionTextOffset{ 10, 7, 0 };
+
 }

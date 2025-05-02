@@ -191,7 +191,7 @@
       <Filter>Components\Composition\Buttons</Filter>
     </ClInclude>
     <ClInclude Include="TextBlock.h">
-      <Filter>Components</Filter>
+      <Filter>Components\Composition</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -9,5 +9,5 @@ SvgSprite::SvgSprite(
 	: SpriteVisual{compositor.CreateSpriteVisual() }
 {
 	Size(size);
-	Brush(compositor.CreateSurfaceBrush(LoadedSvgSurface{ svg, size, graphicsDevice }));
+	Brush(compositor.CreateSurfaceBrush(LoadedSvgSurface{ svg, {1024, 1024}, graphicsDevice}));
 }

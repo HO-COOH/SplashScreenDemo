@@ -20,7 +20,7 @@ public:
 	winrt::Windows::UI::Composition::Compositor m_compositor;
 	winrt::Windows::UI::Composition::Desktop::DesktopWindowTarget m_target{ nullptr };
 	winrt::Windows::UI::Composition::VisualCollection visuals{ nullptr };
-
+	winrt::Windows::UI::Composition::ContainerVisual containerVisual{ nullptr };
 
 	CompositionWrapper(HWND hwnd);
 

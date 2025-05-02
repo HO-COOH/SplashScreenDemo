@@ -59,10 +59,20 @@ protected:
 		return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 
+	static LRESULT OnNCCalcSize(HWND hwnd, WPARAM wparam, LPARAM lparam)
+	{
+		return DefWindowProc(hwnd, WM_NCCALCSIZE, wparam, lparam);
+	}
+
 	//static LRESULT OnMouseMove(HWND hwnd, WPARAM buttonDown, WORD x, WORD y)
 	//{
 	//	return DefWindowProc(hwnd, WM_MOUSEMOVE, buttonDown, MAKELONG(x, y));
 	//}
+
+	static LRESULT OnNCHitTest(HWND hwnd, WPARAM wparam, LPARAM lparam)
+	{
+		return DefWindowProc(hwnd, WM_NCHITTEST, wparam, lparam);
+	}
 
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
@@ -88,9 +98,13 @@ protected:
 			case WM_SIZE:
 				T::OnSize(hwnd, wparam, LOWORD(lparam), HIWORD(lparam));
 				return 0;
+			case WM_NCCALCSIZE:
+				return T::OnNCCalcSize(hwnd, wparam, lparam);
 			case WM_MOUSEMOVE:
 				T::OnMouseMove(hwnd, wparam, LOWORD(lparam), HIWORD(lparam));
 				return 0;
+			case WM_NCHITTEST:
+				return T::OnNCHitTest(hwnd, wparam, lparam);
 			default:
 				return T::OnUserMessage(hwnd, msg, wparam, lparam);
 		}
@@ -137,6 +151,13 @@ public:
 		RECT clientRect;
 		THROW_IF_WIN32_BOOL_FALSE(GetClientRect(m_hwnd.get(), &clientRect));
 		return clientRect;
+	}
+
+	RECT WindowRect() const
+	{
+		RECT windowRect;
+		THROW_IF_WIN32_BOOL_FALSE(GetWindowRect(m_hwnd.get(), &windowRect));
+		return windowRect;
 	}
 
 	UINT GetDpi() const

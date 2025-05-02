@@ -8,7 +8,9 @@
 #include "Background.h"
 #include "LogoCompositionSurface.h"
 #include "CaptionButton.h"
+#include <string>
 #include "ColorAnimationUsingKeyFrames.h"
+#include "TextBlock.h"
 
 //WIP
 class SplashWindow : public BaseWindow<SplashWindow, L"SplashWindowClass">
@@ -24,9 +26,14 @@ class SplashWindow : public BaseWindow<SplashWindow, L"SplashWindowClass">
 	CaptionButton maximizeButton{ nullptr };
 	CaptionButton closeButton{ nullptr };
 	ColorAnimationUsingKeyFrames pointerExitCaptoinButtonColorAnimation{ nullptr };
+	TextBlock titleText{ nullptr };
 
 	//play opacity fade animation
 	void onMainAppLoaded();
+
+	static std::wstring getSyncMoveWindowTitle();
+	int m_resizeHandleHeight{};
+
 public:
 	constexpr static auto AnimationTimerId = 0x2;
 	constexpr static auto MessageQueuePollingTimerIntervalMilliseconds = 100;
@@ -40,6 +47,8 @@ public:
 	static void OnMouseMove(HWND hwnd, WPARAM buttonDown, WORD x, WORD y);
 	static LRESULT OnUserMessage(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	static void OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggestedPosition);
+	static LRESULT OnNCCalcSize(HWND hwnd, WPARAM wparam, LPARAM lparam);
+	static LRESULT OnNCHitTest(HWND hwnd, WPARAM wparam, LPARAM lparam);
 
 	static HWND syncMoveWithWindow;
 };

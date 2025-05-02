@@ -1,6 +1,7 @@
 #include "Background.h"
 #include <winrt/Windows.UI.Composition.h>
 #include <winrt/Windows.UI.h>
+#include "Config.h"
 
 Background::Background(
 	winrt::Windows::UI::Composition::Compositor const& compositor, 
@@ -9,7 +10,7 @@ Background::Background(
 ) : SpriteVisual{ compositor.CreateSpriteVisual() }
 { 
 	Size(size);
-	Brush(compositor.CreateColorBrush(winrt::Windows::UI::Color{ .A = 0xFF, .R = 0xFF, .G = 0xB9 }));
+	Brush(compositor.CreateColorBrush(winrt::Windows::UI::Color{ .A = 0xFF, .R = Config::BackgroundColor >> 16, .G = Config::BackgroundColor >> 8, .B = Config::BackgroundColor & 0xFF }));
 	visuals.InsertAtBottom(*this);
 }
 

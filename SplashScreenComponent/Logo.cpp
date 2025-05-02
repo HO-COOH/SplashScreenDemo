@@ -41,14 +41,15 @@ Logo::Logo(std::wstring_view filePath, ID2D1RenderTarget* renderTarget)
 
 void Logo::OnPaint(ID2D1RenderTarget* renderTarget, FLOAT opacity)
 {
-	D2D1_RECT_F bitmapDestination
-	{
-		.left = (m_width - Config::LogoWidth) / 2.f,
-		.top = (m_height - Config::LogoHeight) / 2.f
-	};
-	bitmapDestination.right = bitmapDestination.left + Config::LogoWidth;
-	bitmapDestination.bottom = bitmapDestination.top + Config::LogoHeight;
+	//D2D1_RECT_F bitmapDestination
+	//{
+	//	.left = (m_width - Config::LogoWidth) / 2.f,
+	//	.top = (m_height - Config::LogoHeight) / 2.f
+	//};
+	//bitmapDestination.right = bitmapDestination.left + Config::LogoWidth;
+	//bitmapDestination.bottom = bitmapDestination.top + Config::LogoHeight;
 
+	D2D1_RECT_F bitmapDestination{ .right = static_cast<float>(m_width), .bottom = static_cast<float>(m_height) };
 	renderTarget->DrawBitmap(bitmap.get(), &bitmapDestination, opacity);
 }
 
