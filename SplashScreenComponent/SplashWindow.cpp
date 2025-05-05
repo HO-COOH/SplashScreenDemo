@@ -8,25 +8,11 @@
 #include "D2D1Factory.h"
 #include "Glyphs.h"
 #include <windowsx.h> // for GET_Y_LPARAM() macro
+#include "DpiUtils.hpp"
 
 extern LPSTR argv;
 
 HWND SplashWindow::syncMoveWithWindow;
-
-static auto ScaleForDpi(auto value, UINT dpi)
-{
-	return static_cast<float>(value * dpi / 96);
-};
-
-static auto ScaleForDpi(winrt::Windows::Foundation::Numerics::float3 value, UINT dpi)
-{
-	return winrt::Windows::Foundation::Numerics::float3{
-		ScaleForDpi(value.x, dpi),
-		ScaleForDpi(value.y, dpi),
-		ScaleForDpi(value.z, dpi)
-	};
-}
-
 
 void SplashWindow::OnWindowPosChanging(HWND hwnd, WINDOWPOS* windowPos)
 {
@@ -62,15 +48,31 @@ void SplashWindow::OnSize(HWND hwnd, WPARAM wparam, UINT width, UINT height)
 {
 	auto self = getSelfFromHwnd(hwnd);
 	if (self->background)
+	{
 		self->background.Size({ static_cast<float>(width), static_cast<float>(height) });
+		auto const clientRect = self->ClientRect();
+		auto const dpi = self->GetDpi();
+		winrt::Windows::Foundation::Numerics::float2 const scaledButtonSize
+		{
+			ScaleForDpi(Config::CaptionButtonWidth, dpi),
+			ScaleForDpi(Config::CaptionButtonHeight, dpi)
+		};
+		self->minimizeButton.Offset({ width - scaledButtonSize.x * 3, 0, 0 });
+		self->maximizeButton.Offset({ width - scaledButtonSize.x * 2, 0, 0 });
+		self->closeButton.Offset({ width - scaledButtonSize.x, 0, 0 });
+		self->m_compositionWrapper->containerVisual.Size({ static_cast<float>(width), static_cast<float>(height)});
+		self->logo.Size({ ScaleForDpi(Config::LogoWidth, dpi), ScaleForDpi(Config::LogoHeight, dpi) });
+		self->logo.Offset({ width / 2.0f, height / 2.0f, 0 });
+	}
 }
 
 void SplashWindow::OnMouseMove(HWND hwnd, WPARAM buttonDown, WORD x, WORD y)
 {
 	auto self = getSelfFromHwnd(hwnd);
-	if (!self->maximizeButton.HitTest(x, y)) self->maximizeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
-	if (!self->minimizeButton.HitTest(x, y)) self->minimizeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
-	if (!self->closeButton.HitTest(x, y)) self->closeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
+	auto dpi = self->GetDpi();
+	if (!self->maximizeButton.HitTest(x, y, dpi)) self->maximizeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
+	if (!self->minimizeButton.HitTest(x, y, dpi)) self->minimizeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
+	if (!self->closeButton.HitTest(x, y, dpi)) self->closeButton.PlayColorAnimation(self->pointerExitCaptoinButtonColorAnimation);
 }
 
 LRESULT SplashWindow::OnUserMessage(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -92,28 +94,36 @@ void SplashWindow::OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggested
 		ScaleForDpi(Config::CaptionButtonGlyphSize, dpiX)
 	};
 	winrt::Windows::Foundation::Numerics::float2 const scaledButtonSize
-	{ 
-		ScaleForDpi(Config::CaptionButtonWidth, dpiX),  
-		ScaleForDpi(Config::CaptionButtonHeight, dpiX) 
+	{
+		ScaleForDpi(Config::CaptionButtonWidth, dpiX),
+		ScaleForDpi(Config::CaptionButtonHeight, dpiX)
 	};
 
 	self->closeButton.SetContent(SvgSprite{ Glyphs::Close, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
 	self->closeButton.Size(scaledButtonSize);
-	
+
 	self->maximizeButton.SetContent(SvgSprite{ Glyphs::Maximize, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
 	self->maximizeButton.Size(scaledButtonSize);
 
 	self->minimizeButton.SetContent(SvgSprite{ Glyphs::Minimize, scaledSvgSize, self->m_compositionWrapper->m_compositor, self->m_compositionWrapper->GetGraphicsDevice() });
 	self->minimizeButton.Size(scaledButtonSize);
 
+	self->m_resizeHandleHeight = GetSystemMetricsForDpi(SM_CYSIZE, dpiX) + GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpiX) + GetSystemMetricsForDpi(SM_CYFRAME, dpiX);
+	BaseWindow::OnDpiChanged(hwnd, dpiX, dpiY, suggestedPosition);
+
 	auto const clientRect = self->ClientRect();
-	self->background.Size(winrt::Windows::Foundation::Numerics::float2{ 
-		static_cast<float>(clientRect.right), 
-		static_cast<float>(clientRect.bottom) 
+	self->background.Size(winrt::Windows::Foundation::Numerics::float2{
+		static_cast<float>(clientRect.right),
+		static_cast<float>(clientRect.bottom)
 	});
 
-	self->m_resizeHandleHeight = GetSystemMetricsForDpi(SM_CYCAPTION, dpiX);
-	BaseWindow::OnDpiChanged(hwnd, dpiX, dpiY, suggestedPosition);
+	self->titleText.SetText(
+	self->m_compositionWrapper->m_compositor,
+	self->m_compositionWrapper->GetGraphicsDevice(),
+	L"SplashScreenDemo",
+	ScaleForDpi(Config::CaptionTextFontSize, dpiX)
+	);
+	self->titleText.Offset(ScaleForDpi(Config::CaptionTextOffset, dpiX));
 }
 
 LRESULT SplashWindow::OnNCCalcSize(HWND hwnd, WPARAM wparam, LPARAM lparam)
@@ -169,22 +179,29 @@ LRESULT SplashWindow::OnNCHitTest(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		return originalNCHitTestResult;
 
 	auto self = getSelfFromHwnd(hwnd);
-	auto const windowRect = self->WindowRect();
-	auto xPos = GET_X_LPARAM(lparam);
-	auto yPos = GET_Y_LPARAM(lparam);
-	if (yPos <= windowRect.top + self->m_resizeHandleHeight)
+
+	POINT p{ GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam) };
+	winrt::check_bool(ScreenToClient(hwnd, &p));
+	if (p.y <= self->m_resizeHandleHeight)
 	{
-		yPos -= windowRect.top;
-		xPos -= windowRect.left;
-		if (self->maximizeButton.HitTest(xPos, yPos))
+		auto const dpi = self->GetDpi();
+		if (self->maximizeButton.HitTest(p.x, p.y, dpi))
 			return HTMAXBUTTON;
-		if (self->minimizeButton.HitTest(xPos, yPos))
+		if (self->minimizeButton.HitTest(p.x, p.y, dpi))
 			return HTMINBUTTON;
-		if (self->closeButton.HitTest(xPos, yPos))
+		if (self->closeButton.HitTest(p.x, p.y, dpi))
 			return HTCLOSE;
 		return HTCAPTION;
 	}
 	return HTCLIENT;
+}
+
+LRESULT SplashWindow::OnNCMouseMove(HWND hwnd, WPARAM hitTestResult, LPARAM point)
+{
+	RECT windowRect;
+	GetWindowRect(hwnd, &windowRect);
+	OnMouseMove(hwnd, NULL, GET_X_LPARAM(point) - windowRect.left, GET_Y_LPARAM(point) - windowRect.top);
+	return 0;
 }
 
 void SplashWindow::onMainAppLoaded()
@@ -222,7 +239,7 @@ SplashWindow::SplashWindow() : BaseWindow{
 	m_compositionWrapper.emplace(m_hwnd.get());
 	auto dpi = GetDpiForWindow(m_hwnd.get());
 
-	logo = LogoCompositionSurface{ m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice(), 1240, 600 };
+	logo = LogoCompositionSurface{ m_compositionWrapper->m_compositor, m_compositionWrapper->GetGraphicsDevice(), ScaleForDpi<UINT>(Config::LogoWidth, dpi), ScaleForDpi<UINT>(Config::LogoHeight, dpi) };
 	logo.AnchorPoint({ 0.5f, 0.5f });
 	logo.Offset({ width / 2.f, height / 2.f, 0 });
 	m_compositionWrapper->visuals.InsertAtTop(logo);

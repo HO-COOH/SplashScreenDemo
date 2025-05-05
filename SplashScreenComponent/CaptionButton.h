@@ -21,6 +21,6 @@ public:
 	}
 
 	void Offset(winrt::Windows::Foundation::Numerics::float3 offset);
-
-	bool HitTest(WORD x, WORD y);
+	winrt::Windows::Foundation::Numerics::float3 Offset() const { return m_offset; }
+	bool HitTest(WORD x, WORD y, UINT dpi);
 };

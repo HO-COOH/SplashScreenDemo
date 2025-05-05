@@ -10,4 +10,11 @@ public:
 		float fontSize);
 
 	TextBlock(std::nullptr_t) : SpriteVisual{ nullptr } {}
+
+	void SetText(
+		winrt::Windows::UI::Composition::Compositor const& compositor,
+		winrt::Windows::UI::Composition::CompositionGraphicsDevice const& graphicsDevice,
+		std::wstring_view text,
+		float fontSize
+	);
 };

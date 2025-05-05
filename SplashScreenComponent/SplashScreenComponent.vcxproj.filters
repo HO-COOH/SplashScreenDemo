@@ -193,6 +193,9 @@
     <ClInclude Include="TextBlock.h">
       <Filter>Components\Composition</Filter>
     </ClInclude>
+    <ClInclude Include="DpiUtils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

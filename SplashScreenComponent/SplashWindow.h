@@ -49,6 +49,7 @@ public:
 	static void OnDpiChanged(HWND hwnd, WORD dpiX, WORD dpiY, RECT* suggestedPosition);
 	static LRESULT OnNCCalcSize(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	static LRESULT OnNCHitTest(HWND hwnd, WPARAM wparam, LPARAM lparam);
+	static LRESULT OnNCMouseMove(HWND hwnd, WPARAM hitTestResult, LPARAM point);
 
 	static HWND syncMoveWithWindow;
 };

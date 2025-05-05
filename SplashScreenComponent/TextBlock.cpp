@@ -9,6 +9,11 @@
 
 TextBlock::TextBlock(winrt::Windows::UI::Composition::Compositor const& compositor, winrt::Windows::UI::Composition::CompositionGraphicsDevice const& graphicsDevice, std::wstring_view text, float fontSize) : SpriteVisual{compositor.CreateSpriteVisual() }
 {
+	SetText(compositor, graphicsDevice, text, fontSize);
+}
+
+void TextBlock::SetText(winrt::Windows::UI::Composition::Compositor const& compositor, winrt::Windows::UI::Composition::CompositionGraphicsDevice const& graphicsDevice, std::wstring_view text, float fontSize)
+{
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	winrt::check_hresult(DWriteFactory::Instance->CreateTextFormat(
 		TEXT("Segoe UI"),
@@ -22,7 +27,7 @@ TextBlock::TextBlock(winrt::Windows::UI::Composition::Compositor const& composit
 	));
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_LEADING);
 	Size({ 1000.f, 100.f });
-	auto surface = graphicsDevice.CreateDrawingSurface({ 1000, 100 }, 
+	auto surface = graphicsDevice.CreateDrawingSurface({ 1000, 100 },
 		winrt::Windows::Graphics::DirectX::DirectXPixelFormat::B8G8R8A8UIntNormalized,
 		winrt::Windows::Graphics::DirectX::DirectXAlphaMode::Premultiplied);
 	auto surfaceInterop = surface.as<ABI::Windows::UI::Composition::ICompositionDrawingSurfaceInterop>();
@@ -36,7 +41,7 @@ TextBlock::TextBlock(winrt::Windows::UI::Composition::Compositor const& composit
 		text.data(),
 		text.size(),
 		textFormat.get(),
-		D2D1::RectF(0, 0, 1000, 100),
+		D2D1::RectF(0, 0, 10000, 100),
 		textBrush.get()
 	);
 	winrt::check_hresult(surfaceInterop->EndDraw());

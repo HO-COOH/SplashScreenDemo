@@ -1,6 +1,7 @@
 #pragma once
 #include <wil/resource.h>
 #include <string_view>
+#include <string>
 
 template<size_t N>
 struct StringLiteral {
@@ -64,6 +65,11 @@ protected:
 		return DefWindowProc(hwnd, WM_NCCALCSIZE, wparam, lparam);
 	}
 
+	static LRESULT OnNCMouseMove(HWND hwnd, WPARAM hitTestResult, LPARAM point)
+	{
+		return DefWindowProc(hwnd, WM_NCMOUSEMOVE, hitTestResult, point);
+	}
+
 	//static LRESULT OnMouseMove(HWND hwnd, WPARAM buttonDown, WORD x, WORD y)
 	//{
 	//	return DefWindowProc(hwnd, WM_MOUSEMOVE, buttonDown, MAKELONG(x, y));
@@ -105,6 +111,17 @@ protected:
 				return 0;
 			case WM_NCHITTEST:
 				return T::OnNCHitTest(hwnd, wparam, lparam);
+			case WM_NCMOUSEMOVE:
+				return T::OnNCMouseMove(hwnd, wparam, lparam);
+			//case WM_LBUTTONUP:
+			//	OutputDebugString(L"Mouse up\n");
+			//	break;
+			//case WM_NCLBUTTONUP:
+			//	OutputDebugString(L"NCMouse up\n");
+			//	break;
+			case WM_SYSCOMMAND:
+				OutputDebugString((std::to_wstring(wparam) + L"\n").data());
+				break;
 			default:
 				return T::OnUserMessage(hwnd, msg, wparam, lparam);
 		}

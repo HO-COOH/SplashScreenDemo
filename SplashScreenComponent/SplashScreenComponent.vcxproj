@@ -180,6 +180,7 @@
     <ClInclude Include="D2D1Factory.h" />
     <ClInclude Include="D3D11Device.hpp" />
     <ClInclude Include="DoubleAnimationUsingKeyFrames.h" />
+    <ClInclude Include="DpiUtils.hpp" />
     <ClInclude Include="DWriteFactory.h" />
     <ClInclude Include="DXGIFactory.hpp" />
     <ClInclude Include="KeyFrameAnimationHelper.h" />
